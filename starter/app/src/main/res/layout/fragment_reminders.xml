@@ -7,14 +7,14 @@
 
         <variable
             name="viewModel"
-            type="com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel" />
+            type="com.udacity.project4.ui.reminderListFragment.RemindersListViewModel" />
     </data>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context=".locationreminders.reminderslist.ReminderListFragment">
+        tools:context=".ui.reminderListFragment.ReminderListFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

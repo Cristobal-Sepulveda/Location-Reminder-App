@@ -1,4 +1,4 @@
-package com.udacity.project4.locationreminders.reminderslist
+package com.udacity.project4.ui.reminderListFragment
 
 import java.io.Serializable
 import java.util.*

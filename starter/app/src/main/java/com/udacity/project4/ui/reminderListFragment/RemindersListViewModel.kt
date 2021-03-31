@@ -1,4 +1,4 @@
-package com.udacity.project4.locationreminders.reminderslist
+package com.udacity.project4.ui.reminderListFragment
 
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
@@ -43,7 +43,7 @@ class RemindersListViewModel(
                     remindersList.value = dataList
                 }
                 is Result.Error ->
-                    showSnackBar.value = result.message
+                    showSnackBar.value = result.message!!
             }
 
             //check if no data has to be shown

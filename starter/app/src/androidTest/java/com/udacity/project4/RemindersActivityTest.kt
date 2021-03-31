@@ -7,8 +7,8 @@ import androidx.test.filters.LargeTest
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
-import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
-import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.ui.reminderListFragment.RemindersListViewModel
+import com.udacity.project4.ui.saveReminderFragment.SaveReminderViewModel
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.runner.RunWith

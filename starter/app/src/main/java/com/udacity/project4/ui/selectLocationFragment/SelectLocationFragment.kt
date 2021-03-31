@@ -1,31 +1,13 @@
-package com.udacity.project4.locationreminders.savereminder.selectreminderlocation
+package com.udacity.project4.ui.selectLocationFragment
 
 
-import android.Manifest
-import android.app.Activity
-import android.content.Intent
-import android.content.IntentSender
-import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.*
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
-import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
-import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
-import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.ui.saveReminderFragment.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 

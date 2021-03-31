@@ -1,4 +1,4 @@
-package com.udacity.project4.locationreminders.savereminder
+package com.udacity.project4.ui.saveReminderFragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,16 +13,18 @@ import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 
 class SaveReminderFragment : BaseFragment() {
+
     //Get the view model this time as a single to be shared with the another fragment
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSaveReminderBinding
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        binding =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_save_reminder, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+
+        binding = DataBindingUtil.inflate(inflater,
+                                          R.layout.fragment_save_reminder,
+                                          container,
+                                         false)
 
         setDisplayHomeAsUpEnabled(true)
 
