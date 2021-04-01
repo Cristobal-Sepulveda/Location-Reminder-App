@@ -65,6 +65,7 @@ class AuthenticationActivity : AppCompatActivity() {
             //then we check the resultCode to see what the result of the login was
             if(resultCode == Activity.RESULT_OK){
                 //User successfully signed in
+                //          TODO: If the user was authenticated, send him to RemindersActivity
                 Log.i(TAG, "Successfully signed in user ${FirebaseAuth.getInstance().currentUser?.displayName}")
                 val firebaseAuth = FirebaseAuth.getInstance()
                 if(firebaseAuth.currentUser != null) {
@@ -77,11 +78,7 @@ class AuthenticationActivity : AppCompatActivity() {
             }
         }
     }
-
-//          TODO: If the user was authenticated, send him to RemindersActivity
-
 //          TODO: a bonus is to customize the sign in flow to look nice using :
         //https://github.com/firebase/FirebaseUI-Android/blob/master/auth/README.md#custom-layout
-
 }
 
