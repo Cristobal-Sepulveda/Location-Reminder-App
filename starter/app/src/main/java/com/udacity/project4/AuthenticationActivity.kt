@@ -1,4 +1,4 @@
-package com.udacity.project4.authentication
+package com.udacity.project4
 
 import android.app.Activity
 import android.content.Intent
@@ -9,9 +9,7 @@ import androidx.databinding.DataBindingUtil
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
-import com.udacity.project4.R
 import com.udacity.project4.databinding.ActivityAuthenticationBinding
-import com.udacity.project4.RemindersActivity
 
 
 /**
@@ -41,7 +39,7 @@ class AuthenticationActivity : AppCompatActivity() {
     // If users choose to register with their email,
     // they will need to create a password as well.
     private fun launchSignInFlow() {
-        /** What im doing here is telling the firebaseUI how i want to let the user log-in */
+        /** What im doing here is telling to the firebaseUI how i want to let the user log-in */
         val providers = arrayListOf(AuthUI.IdpConfig.EmailBuilder().build(),
                 AuthUI.IdpConfig.GoogleBuilder().build())
 

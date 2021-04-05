@@ -45,9 +45,9 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 
-*//**
+*
  * An activity that displays a map showing the place at the device's current location.
- *//*
+
 class MapsActivityCurrentPlace : AppCompatActivity(), OnMapReadyCallback {
     private var map: GoogleMap? = null
     private var cameraPosition: CameraPosition? = null
@@ -96,9 +96,9 @@ class MapsActivityCurrentPlace : AppCompatActivity(), OnMapReadyCallback {
         mapFragment?.getMapAsync(this)
     }
 
-    *//**
+    *
      * Saves the state of the map when the activity is paused.
-     *//*
+
     override fun onSaveInstanceState(outState: Bundle) {
         map?.let { map ->
             outState.putParcelable(KEY_CAMERA_POSITION, map.cameraPosition)
@@ -107,21 +107,21 @@ class MapsActivityCurrentPlace : AppCompatActivity(), OnMapReadyCallback {
         super.onSaveInstanceState(outState)
     }
 
-    *//**
+    *
      * Sets up the options menu.
      * @param menu The options menu.
      * @return Boolean.
-     *//*
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.current_place_menu, menu)
         return true
     }
 
-    *//**
+    *
      * Handles a click on the menu option to get a place.
      * @param item The menu item to handle.
      * @return Boolean.
-     *//*
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.option_get_place) {
             showCurrentPlace()
@@ -129,10 +129,10 @@ class MapsActivityCurrentPlace : AppCompatActivity(), OnMapReadyCallback {
         return true
     }
 
-    *//**
+    *
      * Manipulates the map when it's available.
      * This callback is triggered when the map is ready to be used.
-     *//*
+
     override fun onMapReady(map: GoogleMap) {
         this.map = map
 
@@ -166,14 +166,14 @@ class MapsActivityCurrentPlace : AppCompatActivity(), OnMapReadyCallback {
         getDeviceLocation()
     }
 
-    *//**
+    *
      * Gets the current location of the device, and positions the map's camera.
-     *//*
+
     private fun getDeviceLocation() {
-        *//*
+
          * Get the best and most recent location of the device, which may be null in rare
          * cases when a location is not available.
-         *//*
+
         try {
             if (locationPermissionGranted) {
                 val locationResult = fusedLocationProviderClient.lastLocation
@@ -200,15 +200,12 @@ class MapsActivityCurrentPlace : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    *//**
+    *
      * Prompts the user for permission to use the device location.
-     *//*
+
     private fun getLocationPermission() {
-        *//*
-         * Request location permission, so that we can get the location of the
-         * device. The result of the permission request is handled by a callback,
-         * onRequestPermissionsResult.
-         *//*
+
+
         if (ContextCompat.checkSelfPermission(this.applicationContext,
                 Manifest.permission.ACCESS_FINE_LOCATION)
             == PackageManager.PERMISSION_GRANTED) {
@@ -219,9 +216,9 @@ class MapsActivityCurrentPlace : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    *//**
+    *
      * Handles the result of the request for location permissions.
-     *//*
+
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>,
                                             grantResults: IntArray) {
@@ -239,10 +236,10 @@ class MapsActivityCurrentPlace : AppCompatActivity(), OnMapReadyCallback {
         updateLocationUI()
     }
 
-    *//**
+    *
      * Prompts the user to select the current place from a list of likely places, and shows the
      * current place on the map - provided the user has granted location permission.
-     *//*
+
     @SuppressLint("MissingPermission")
     private fun showCurrentPlace() {
         if (map == null) {
@@ -307,9 +304,9 @@ class MapsActivityCurrentPlace : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    *//**
+    *
      * Displays a form allowing the user to select a place from a list of likely places.
-     *//*
+
     private fun openPlacesDialog() {
         // Ask the user to choose the place where they are now.
         val listener = DialogInterface.OnClickListener { dialog, which -> // The "which" argument contains the position of the selected item.
@@ -341,9 +338,9 @@ class MapsActivityCurrentPlace : AppCompatActivity(), OnMapReadyCallback {
             .show()
     }
 
-    *//**
+    *
      * Updates the map's UI settings based on whether the user has granted location permission.
-     *//*
+
     private fun updateLocationUI() {
         if (map == null) {
             return

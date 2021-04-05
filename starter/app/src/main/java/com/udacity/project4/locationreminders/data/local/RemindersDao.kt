@@ -12,6 +12,7 @@ import com.udacity.project4.locationreminders.data.dto.ReminderDTO
  */
 @Dao
 interface RemindersDao {
+
     /**
      * @return all reminders.
      */

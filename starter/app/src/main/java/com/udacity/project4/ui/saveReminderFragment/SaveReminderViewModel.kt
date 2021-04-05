@@ -14,13 +14,13 @@ import kotlinx.coroutines.launch
 
 class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSource) :
     BaseViewModel(app) {
-    val reminderTitle = MutableLiveData<String>()
+    val reminderTitle = MutableLiveData<String?>()
     val reminderDescription = MutableLiveData<String>()
     val reminderSelectedLocationStr = MutableLiveData<String>()
     val selectedPOI = MutableLiveData<PointOfInterest>()
     val latitude = MutableLiveData<Double>()
     val longitude = MutableLiveData<Double>()
-
+    val selectedPOICount= MutableLiveData<Int>()
     /**
      * Clear the live data objects to start fresh next time the view model gets called
      */
@@ -40,6 +40,22 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         if (validateEnteredData(reminderData)) {
             saveReminder(reminderData)
         }
+    }
+
+    /**
+     * Validate the entered data and show error to the user if there's any invalid data
+     */
+    fun validateEnteredData(reminderData: ReminderDataItem): Boolean {
+        if (reminderData.title.isNullOrEmpty()) {
+            showSnackBarInt.value = R.string.err_enter_title
+            return false
+        }
+
+        if (reminderData.location.isNullOrEmpty()) {
+            showSnackBarInt.value = R.string.err_select_location
+            return false
+        }
+        return true
     }
 
     /**
@@ -64,19 +80,4 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         }
     }
 
-    /**
-     * Validate the entered data and show error to the user if there's any invalid data
-     */
-    fun validateEnteredData(reminderData: ReminderDataItem): Boolean {
-        if (reminderData.title.isNullOrEmpty()) {
-            showSnackBarInt.value = R.string.err_enter_title
-            return false
-        }
-
-        if (reminderData.location.isNullOrEmpty()) {
-            showSnackBarInt.value = R.string.err_select_location
-            return false
-        }
-        return true
-    }
 }
