@@ -49,12 +49,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         binding.lifecycleOwner = this
 
         _viewModel.selectedPOICount.value = null
+
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
 
         val toast = Toast.makeText(requireActivity().applicationContext,
         R.string.saveText, Toast.LENGTH_LONG)
         toast.show()
+
 
 //        TODO: add the map setup implementation
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -164,11 +166,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                         }
                     } else {
                         //        TODO: zoom to the user location after taking his permission
-                        map.moveCamera(CameraUpdateFactory
-                            .newLatLngZoom(defaultLocation, DEFAULT_ZOOM.toFloat()))
+                        map.moveCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                        LatLng(defaultLocation.latitude,
+                                                defaultLocation.longitude
+                                        ), DEFAULT_ZOOM.toFloat()))
                         map.addMarker(MarkerOptions().
                                       position(defaultLocation).
-                                      title("Marker in your actual location"))
+                                      title("Marker in default location"))
                         map.uiSettings?.isMyLocationButtonEnabled = false
                     }
                 }

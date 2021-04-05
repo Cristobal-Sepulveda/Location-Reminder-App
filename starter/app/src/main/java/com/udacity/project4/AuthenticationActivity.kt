@@ -2,12 +2,18 @@ package com.udacity.project4
 
 import android.app.Activity
 import android.content.Intent
+import android.content.IntentSender
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.udacity.project4.databinding.ActivityAuthenticationBinding
 
@@ -33,6 +39,7 @@ class AuthenticationActivity : AppCompatActivity() {
         binding.loginButton.setOnClickListener {
                 launchSignInFlow()
         }
+        checkDeviceLocationSettings()
 
     }
     // Give users the option to sign in / register with their email or Google account.
@@ -78,5 +85,42 @@ class AuthenticationActivity : AppCompatActivity() {
     }
 //          TODO: a bonus is to customize the sign in flow to look nice using :
         //https://github.com/firebase/FirebaseUI-Android/blob/master/auth/README.md#custom-layout
+
+    /**
+     * Uses the Location Client to check the current state of location settings, and gives the user
+     * the opportunity to turn on location services within our app.
+     * */
+    private fun checkDeviceLocationSettings(resolve:Boolean = true) {
+        val locationRequest = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_LOW_POWER
+        }
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+
+        val settingsClient = LocationServices.getSettingsClient(this)
+        val locationSettingsResponseTask =
+                settingsClient.checkLocationSettings(builder.build())
+
+        locationSettingsResponseTask.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException && resolve){
+                // Location settings are not satisfied, but this can be fixed
+                // by showing the user a dialog.
+                try {
+                    // Show the dialog by calling startResolutionForResult(),
+                    // and check the result in onActivityResult().
+                    exception.startResolutionForResult(this,
+                            RemindersActivity.REQUEST_TURN_DEVICE_LOCATION_ON)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    Log.d("asd", "Error geting location settings resolution: " + sendEx.message)
+                }
+            } else {
+                Snackbar.make(
+                        binding.container,
+                        R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
+                ).setAction(android.R.string.ok) {
+                    checkDeviceLocationSettings()
+                }.show()
+            }
+        }
+    }
 }
 

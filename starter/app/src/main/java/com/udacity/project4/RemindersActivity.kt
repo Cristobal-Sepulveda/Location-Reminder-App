@@ -83,8 +83,6 @@ class RemindersActivity : AppCompatActivity() {
                             flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         })
                     }.show()
-        }else{
-            checkDeviceLocationSettingsAndStartGeofence()
         }
     }
 
@@ -93,8 +91,9 @@ class RemindersActivity : AppCompatActivity() {
      */
     @TargetApi(29 )
     private fun requestForegroundAndBackgroundLocationPermissions() {
-        if (foregroundAndBackgroundLocationPermissionApproved())
+        if (foregroundAndBackgroundLocationPermissionApproved()) {
             return
+        }
         var permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
         val resultCode = when {
             runningQOrLater -> {
@@ -126,47 +125,5 @@ class RemindersActivity : AppCompatActivity() {
                     true
                 }
         return foregroundLocationApproved && backgroundPermissionApproved
-    }
-
-    /**
-     * Uses the Location Client to check the current state of location settings, and gives the user
-     * the opportunity to turn on location services within our app.
-     * */
-    private fun checkDeviceLocationSettingsAndStartGeofence(resolve:Boolean = true) {
-        val locationRequest = LocationRequest.create().apply {
-            priority = LocationRequest.PRIORITY_LOW_POWER
-        }
-        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
-
-        val settingsClient = LocationServices.getSettingsClient(this)
-        val locationSettingsResponseTask =
-                settingsClient.checkLocationSettings(builder.build())
-
-        locationSettingsResponseTask.addOnFailureListener { exception ->
-            if (exception is ResolvableApiException && resolve){
-                // Location settings are not satisfied, but this can be fixed
-                // by showing the user a dialog.
-                try {
-                    // Show the dialog by calling startResolutionForResult(),
-                    // and check the result in onActivityResult().
-                    exception.startResolutionForResult(this,
-                            REQUEST_TURN_DEVICE_LOCATION_ON)
-                } catch (sendEx: IntentSender.SendIntentException) {
-                    Log.d("asd", "Error geting location settings resolution: " + sendEx.message)
-                }
-            } else {
-                Snackbar.make(
-                        binding.activityReminders,
-                        R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
-                ).setAction(android.R.string.ok) {
-                    checkDeviceLocationSettingsAndStartGeofence()
-                }.show()
-            }
-        }
-        locationSettingsResponseTask.addOnCompleteListener{
-            if (it.isSuccessful){
-
-            }
-        }
     }
 }
