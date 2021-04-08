@@ -21,6 +21,11 @@ import android.util.Log
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
+import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.BACKGROUND_LOCATION_PERMISSION_INDEX
+import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.LOCATION_PERMISSION_INDEX
+import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE
+import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.locationPermissionGranted
 import java.util.concurrent.TimeUnit
 
 /**
@@ -28,23 +33,7 @@ import java.util.concurrent.TimeUnit
  */
 class RemindersActivity : AppCompatActivity() {
 
-    /**
-     * Usefull variables for the Activity and fragment's associated.
-     */
-    companion object {
-        private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
-        const val REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE = 33
-        const val REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE = 34
-        const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
-        const val LOCATION_PERMISSION_INDEX = 0
-        const val BACKGROUND_LOCATION_PERMISSION_INDEX = 1
-        var locationPermissionGranted = false
 
-        internal const val ACTION_GEOFENCE_EVENT =
-                "ACTION_GEOFENCE_EVENT"
-        const val GEOFENCE_RADIUS_IN_METERS = 100f
-        val GEOFENCE_EXPIRATION_IN_MILLISECONDS: Long = TimeUnit.HOURS.toMillis(1)
-    }
 
     private val runningQOrLater = android.os.Build.VERSION.SDK_INT >=
             android.os.Build.VERSION_CODES.Q

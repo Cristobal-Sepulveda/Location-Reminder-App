@@ -14,7 +14,7 @@ import com.udacity.project4.ui.reminderListFragment.ReminderDataItem
 
 private const val NOTIFICATION_CHANNEL_ID = BuildConfig.APPLICATION_ID + ".channel"
 
-fun NotificationManager.sendNotification(context: Context, reminderDataItem: ReminderDataItem) {
+fun sendNotification(context: Context, reminderDataItem: ReminderDataItem) {
     val notificationManager = context
         .getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 

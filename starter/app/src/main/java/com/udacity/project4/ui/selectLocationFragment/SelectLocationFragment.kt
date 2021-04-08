@@ -15,10 +15,10 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.udacity.project4.R
-import com.udacity.project4.RemindersActivity.Companion.locationPermissionGranted
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
+import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.locationPermissionGranted
 import com.udacity.project4.ui.saveReminderFragment.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
@@ -197,24 +197,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
-/*    //TODO: put a marker to location that the user selected.
-    // This method will be used in onMapReady()
-    private fun setMapLongClick(map:GoogleMap) {
-        map.setOnMapLongClickListener { latLng ->
-            // A Snippet is Additional text that's displayed below the title.
-            val snippet = String.format(
-                Locale.getDefault(),
-                "Lat: %1$.5f, Long: %2$.5f",
-                latLng.latitude,
-                latLng.longitude
-            )
-            map.addMarker(MarkerOptions()
-                .position(latLng)
-                .title(getString(R.string.dropped_pin))
-                .snippet(snippet))
-        }
-    }*/
-
+    //TODO: put a marker to location that the user selected.
     //TODO: put a marker on a POI that the user selected.
     // This method will be used in onMapReady()
     private fun setPoiClick(map: GoogleMap) {

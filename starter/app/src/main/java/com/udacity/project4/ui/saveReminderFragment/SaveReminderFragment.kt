@@ -1,35 +1,47 @@
 package com.udacity.project4.ui.saveReminderFragment
 
-import android.Manifest
-import android.app.Activity
 import android.app.PendingIntent
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
-import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.udacity.project4.R
 import com.udacity.project4.RemindersActivity
-import com.udacity.project4.RemindersActivity.Companion.ACTION_GEOFENCE_EVENT
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSaveReminderBinding
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.udacity.project4.ui.reminderListFragment.ReminderDataItem
+import com.udacity.project4.utils.sendNotification
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
+import java.util.concurrent.TimeUnit
 
 class SaveReminderFragment : BaseFragment() {
+
+    /**
+     * Usefull variables for the Activity and fragment's associated.
+     */
+    companion object {
+        private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
+        const val REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE = 33
+        const val REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE = 34
+        const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
+        const val LOCATION_PERMISSION_INDEX = 0
+        const val BACKGROUND_LOCATION_PERMISSION_INDEX = 1
+        var locationPermissionGranted = false
+        internal const val ACTION_GEOFENCE_EVENT =
+                "SaveReminderFragment.ui.action.ACTION_GEOFENCE_EVENT"
+        const val GEOFENCE_RADIUS_IN_METERS = 100f
+        val GEOFENCE_EXPIRATION_IN_MILLISECONDS: Long = TimeUnit.HOURS.toMillis(1)
+    }
 
     //Get the view model this time as a single to be shared with the another fragment
     override val _viewModel: SaveReminderViewModel by inject()
@@ -84,6 +96,7 @@ class SaveReminderFragment : BaseFragment() {
             addGeofence(reminderDataItem, _viewModel.validateEnteredData(reminderDataItem))
             // TODO : 2) save the reminder to the local db
             _viewModel.validateAndSaveReminder(reminderDataItem)
+            sendNotification(requireActivity().applicationContext,reminderDataItem)
         }
     }
 
@@ -105,11 +118,11 @@ class SaveReminderFragment : BaseFragment() {
                     // Set the circular region of this geofence.
                     .setCircularRegion(reminderDataItem.latitude!!,
                             reminderDataItem.longitude!!,
-                            RemindersActivity.GEOFENCE_RADIUS_IN_METERS
+                            GEOFENCE_RADIUS_IN_METERS
                     )
                     // Set the expiration duration of the geofence. This geofence gets
                     // automatically removed after this period of time.
-                    .setExpirationDuration(RemindersActivity.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+                    .setExpirationDuration(GEOFENCE_EXPIRATION_IN_MILLISECONDS)
                     // Set the transition types of interest. Alerts are only generated for these
                     // transition. We track entry and exit transitions in this sample.
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)

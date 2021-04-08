@@ -16,6 +16,7 @@ import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.udacity.project4.databinding.ActivityAuthenticationBinding
+import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.REQUEST_TURN_DEVICE_LOCATION_ON
 
 
 /**
@@ -108,7 +109,7 @@ class AuthenticationActivity : AppCompatActivity() {
                     // Show the dialog by calling startResolutionForResult(),
                     // and check the result in onActivityResult().
                     exception.startResolutionForResult(this,
-                            RemindersActivity.REQUEST_TURN_DEVICE_LOCATION_ON)
+                            REQUEST_TURN_DEVICE_LOCATION_ON)
                 } catch (sendEx: IntentSender.SendIntentException) {
                     Log.d("asd", "Error geting location settings resolution: " + sendEx.message)
                 }
