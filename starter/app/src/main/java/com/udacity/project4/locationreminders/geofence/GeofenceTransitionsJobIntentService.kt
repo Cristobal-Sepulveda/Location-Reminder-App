@@ -3,9 +3,11 @@ package com.udacity.project4.locationreminders.geofence
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.core.app.JobIntentService
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingEvent
 import com.udacity.project4.R
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
@@ -38,20 +40,23 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
     override fun onHandleWork(intent: Intent) {
         //TODO: handle the geofencing transition events and
         // send a notification to the user when he enters the geofence area
-        val notificationManager = ContextCompat.getSystemService(
-                applicationContext,
-                NotificationManager::class.java
-        ) as NotificationManager
-
-/*        notificationManager.sendNotification(
-                applicationContext,
-        )*/
         //TODO call @sendNotification
+        Log.i("onHandleWork", "Job received")
+        val event  = GeofencingEvent.fromIntent(intent)
+
+        if (event.hasError()) {
+            Log.d("GeofenceTransitionJob", "Event error: ${event.errorCode}")
+            return
+        }
+
+        if (event.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
+            sendNotification(event.triggeringGeofences)
+        }
     }
 
     //TODO: get the request id of the current geofence
     private fun sendNotification(triggeringGeofences: List<Geofence>) {
-        val requestId = ""
+        val requestId = triggeringGeofences.first().requestId
         val notificationManager = ContextCompat.getSystemService(
                 applicationContext,
                 NotificationManager::class.java

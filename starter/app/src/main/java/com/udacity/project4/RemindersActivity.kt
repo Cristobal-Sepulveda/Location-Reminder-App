@@ -2,6 +2,7 @@ package com.udacity.project4
 
 import android.Manifest
 import android.annotation.TargetApi
+import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
@@ -18,15 +19,18 @@ import kotlinx.android.synthetic.main.activity_reminders.*
 import android.provider.Settings
 import android.util.Log
 import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.*
+import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
+import java.util.concurrent.TimeUnit
 
 /**
  * The RemindersActivity that holds the reminders fragments
  */
 class RemindersActivity : AppCompatActivity() {
 
+    /**
+     * Usefull variables for the Activity and fragment's associated.
+     */
     companion object {
         private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
         const val REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE = 33
@@ -35,16 +39,23 @@ class RemindersActivity : AppCompatActivity() {
         const val LOCATION_PERMISSION_INDEX = 0
         const val BACKGROUND_LOCATION_PERMISSION_INDEX = 1
         var locationPermissionGranted = false
+
+        internal const val ACTION_GEOFENCE_EVENT =
+                "ACTION_GEOFENCE_EVENT"
+        const val GEOFENCE_RADIUS_IN_METERS = 100f
+        val GEOFENCE_EXPIRATION_IN_MILLISECONDS: Long = TimeUnit.HOURS.toMillis(1)
     }
 
     private val runningQOrLater = android.os.Build.VERSION.SDK_INT >=
             android.os.Build.VERSION_CODES.Q
 
     private lateinit var binding: ActivityRemindersBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_reminders)
         requestForegroundAndBackgroundLocationPermissions()
+
     }
 
     override fun onResume() {
@@ -62,9 +73,7 @@ class RemindersActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>,
-                                            grantResults: IntArray) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (grantResults.isEmpty() ||
                 grantResults[LOCATION_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED ||

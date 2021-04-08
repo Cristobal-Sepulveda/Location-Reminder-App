@@ -143,12 +143,13 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
          * cases when a location is not available.*/
         try {
             if (locationPermissionGranted) {
-                Log.i("asd", "$locationPermissionGranted")
+                Log.i("cristobal", "$locationPermissionGranted")
                 val locationResult = fusedLocationProviderClient.lastLocation
                 locationResult.addOnCompleteListener(requireActivity()) { task ->
                     if (task.isSuccessful) {
                         // Set the map's camera position to the current location of the device.
                         lastKnownLocation = task.result
+                        println(task.result?.longitude.toString())
                         if (lastKnownLocation != null) {
                             //TODO: zoom to the user location after taking his permission
                             map.moveCamera(
@@ -163,8 +164,21 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                                                     title("Marker in your actual location")
 
                             )
+                        }else{
+                            Log.i("cristobal", "qweqweqwe")
+                            //        TODO: zoom to the user location after taking his permission
+                            map.moveCamera(
+                                    CameraUpdateFactory.newLatLngZoom(
+                                            LatLng(defaultLocation.latitude,
+                                                    defaultLocation.longitude
+                                            ), DEFAULT_ZOOM.toFloat()))
+                            map.addMarker(MarkerOptions().
+                            position(defaultLocation).
+                            title("Marker in default location"))
+                            map.uiSettings?.isMyLocationButtonEnabled = false
                         }
                     } else {
+                        Log.i("cristobal", "qweqweqwe")
                         //        TODO: zoom to the user location after taking his permission
                         map.moveCamera(
                                 CameraUpdateFactory.newLatLngZoom(

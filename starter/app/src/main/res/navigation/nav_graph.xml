@@ -23,7 +23,9 @@
         tools:layout="@layout/fragment_save_reminder">
         <action
             android:id="@+id/action_saveReminderFragment_to_reminderListFragment"
-            app:destination="@id/reminderListFragment" />
+            app:destination="@id/reminderListFragment"
+            app:popUpTo="@id/reminderListFragment"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_saveReminderFragment_to_selectLocationFragment"
             app:destination="@id/selectLocationFragment" />
