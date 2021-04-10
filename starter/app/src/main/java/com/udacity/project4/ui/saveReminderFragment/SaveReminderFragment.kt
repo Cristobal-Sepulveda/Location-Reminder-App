@@ -1,12 +1,15 @@
 package com.udacity.project4.ui.saveReminderFragment
 
+import android.Manifest
 import android.app.PendingIntent
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
@@ -39,7 +42,7 @@ class SaveReminderFragment : BaseFragment() {
         var locationPermissionGranted = false
         internal const val ACTION_GEOFENCE_EVENT =
                 "SaveReminderFragment.ui.action.ACTION_GEOFENCE_EVENT"
-        const val GEOFENCE_RADIUS_IN_METERS = 100f
+        const val GEOFENCE_RADIUS_IN_METERS = 1000f
         val GEOFENCE_EXPIRATION_IN_MILLISECONDS: Long = TimeUnit.HOURS.toMillis(1)
     }
 
@@ -140,6 +143,21 @@ class SaveReminderFragment : BaseFragment() {
             val intent = Intent(requireContext(), GeofenceBroadcastReceiver::class.java)
             intent.action = ACTION_GEOFENCE_EVENT
 
+            if (ActivityCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                val permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+                val resultCode = REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    permissionsArray,
+                    resultCode
+                )
+                return
+            }
             geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
                 addOnSuccessListener {
                     // Geofences added.
