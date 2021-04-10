@@ -43,6 +43,7 @@ class AuthenticationActivity : AppCompatActivity() {
         checkDeviceLocationSettings()
 
     }
+
     // Give users the option to sign in / register with their email or Google account.
     // If users choose to register with their email,
     // they will need to create a password as well.
@@ -81,6 +82,11 @@ class AuthenticationActivity : AppCompatActivity() {
                 }
             }else{
                 Log.i(TAG, "Sign in was unsuccessful ${response?.error?.errorCode}")
+            }
+        }
+        if(requestCode == REQUEST_TURN_DEVICE_LOCATION_ON ){
+            if(resultCode == Activity.RESULT_CANCELED){
+                checkDeviceLocationSettings()
             }
         }
     }
