@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.location.Geofence
@@ -16,15 +17,14 @@ import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.udacity.project4.R
-import com.udacity.project4.RemindersActivity
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSaveReminderBinding
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.udacity.project4.ui.reminderListFragment.ReminderDataItem
-import com.udacity.project4.utils.sendNotification
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
+import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 class SaveReminderFragment : BaseFragment() {
@@ -42,7 +42,7 @@ class SaveReminderFragment : BaseFragment() {
         var locationPermissionGranted = false
         internal const val ACTION_GEOFENCE_EVENT =
                 "SaveReminderFragment.ui.action.ACTION_GEOFENCE_EVENT"
-        const val GEOFENCE_RADIUS_IN_METERS = 1000f
+        const val GEOFENCE_RADIUS_IN_METERS = 100f
         val GEOFENCE_EXPIRATION_IN_MILLISECONDS: Long = TimeUnit.HOURS.toMillis(1)
     }
 
@@ -94,11 +94,14 @@ class SaveReminderFragment : BaseFragment() {
             val latitude = _viewModel.latitude.value
             val longitude = _viewModel.longitude.value
             val reminderDataItem = ReminderDataItem(title, description, location, latitude, longitude)
-//            TODO: use the user entered reminder details to:
-//             1) add a geofencing request
-            addGeofence(reminderDataItem, _viewModel.validateEnteredData(reminderDataItem))
-            // TODO : 2) save the reminder to the local db
+            //TODO: use the user entered reminder details to:
+            try{
             _viewModel.validateAndSaveReminder(reminderDataItem)
+                //TODO: 1) add a geofencing request
+                addGeofence(reminderDataItem, _viewModel.validateEnteredData(reminderDataItem))
+            }catch(e: Exception){
+                Toast.makeText(context, "Error: $e", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -116,7 +119,7 @@ class SaveReminderFragment : BaseFragment() {
         if (boolean) {
             val geofence = Geofence.Builder()
                     // Set the request ID, string to identify the geofence.
-                    .setRequestId(reminderDataItem.title)
+                    .setRequestId(reminderDataItem.id)
                     // Set the circular region of this geofence.
                     .setCircularRegion(reminderDataItem.latitude!!,
                             reminderDataItem.longitude!!,

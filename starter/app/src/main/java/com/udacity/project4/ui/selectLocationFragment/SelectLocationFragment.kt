@@ -1,5 +1,6 @@
 package com.udacity.project4.ui.selectLocationFragment
 
+import android.content.res.Resources
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -13,6 +14,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
@@ -71,27 +73,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
 
         binding.savePOILatLgnButton.setOnClickListener {
-            when (_viewModel.selectedPOICount.value) {
-                null -> {
-                    Toast.makeText(requireActivity().applicationContext,
-                            "You need to select a POI before to save something",
-                            Toast.LENGTH_LONG).show()
-                }
-                1 -> {
-                    //Navigate to another fragment to get the user location
-                    _viewModel.navigationCommand.value =
-                            NavigationCommand.To(
-                                    SelectLocationFragmentDirections.
-                                    actionSelectLocationFragmentToSaveReminderFragment()
-                            )
-                }
-                2 -> {
-                    Toast.makeText(requireActivity().applicationContext,
-                            "You have selected more than one POI, please, press the screen and" +
-                                    "hold some seconds untils all the POI's are deleted",
-                            Toast.LENGTH_LONG).show()
-                }
-            }
+            onLocationSelected()
         }
 
         return binding.root
@@ -127,6 +109,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         getDeviceLocation()
+        setMapStyle(map)
 /*        setMapLongClick(map)*/
         setPoiClick(map)
     }
@@ -197,6 +180,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
+
     //TODO: put a marker to location that the user selected.
     //TODO: put a marker on a POI that the user selected.
     // This method will be used in onMapReady()
@@ -232,9 +216,56 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     }
 
+    /**
+     * This method will be used when the user clicks on save_button!
+     * */
     private fun onLocationSelected() {
-        //        TODO: When the user confirms on the selected location,
-        //         send back the selected location details to the view model
-        //         and navigate back to the previous fragment to save the reminder and add the geofence
+        when (_viewModel.selectedPOICount.value) {
+            null -> {
+                Toast.makeText(requireActivity().applicationContext,
+                        "You need to select a POI before to save something",
+                        Toast.LENGTH_LONG).show()
+            }
+            //        TODO: When the user confirms on the selected location,
+            //         send back the selected location details to the view model
+            //         and navigate back to the previous fragment to save the reminder and add the geofence
+            1 -> {
+                //Navigate to another fragment to get the user location
+                _viewModel.navigationCommand.value =
+                        NavigationCommand.To(
+                                SelectLocationFragmentDirections.
+                                actionSelectLocationFragmentToSaveReminderFragment()
+                        )
+            }
+            2 -> {
+                Toast.makeText(requireActivity().applicationContext,
+                        "You have selected more than one POI, please, press the screen and" +
+                                "hold some seconds untils all the POI's are deleted",
+                        Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    /**
+     * This method is used to set a style to the normal display of GoogleMaps
+     * */
+    private fun setMapStyle(map: GoogleMap) {
+        try {
+            // Customize the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            val success = map.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                            context,
+                            R.raw.map_style
+                    )
+            )
+
+            if (!success) {
+                Log.e("SelectLocationFragment", "Style parsing failed.")
+            }
+        } catch (e: Resources.NotFoundException) {
+            Log.e("SelectLocationFragment", "Can't find style. Error: ", e)
+        }
     }
 }
+
