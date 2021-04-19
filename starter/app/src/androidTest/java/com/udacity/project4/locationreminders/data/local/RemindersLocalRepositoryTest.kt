@@ -24,7 +24,6 @@ import org.junit.runner.RunWith
 //Medium Test to test the repository
 @MediumTest
 class RemindersLocalRepositoryTest {
-
 //    TODO: Add testing implementation to the RemindersLocalRepository.kt
 
 }
