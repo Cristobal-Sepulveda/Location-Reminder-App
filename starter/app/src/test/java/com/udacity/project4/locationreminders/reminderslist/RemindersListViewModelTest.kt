@@ -38,22 +38,22 @@ class RemindersListViewModelTest {
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
     // Subject under test
-    private lateinit var remindersListViewModel: RemindersListViewModel
+    private lateinit var viewModel: RemindersListViewModel
     // TestDouble
-    private lateinit var remindersDataSource: FakeDataSource
+    private lateinit var fakeDataSource: FakeDataSource
 
     @Before
     fun setupViewModel(){
-        remindersDataSource = FakeDataSource()
-        remindersListViewModel =
+        fakeDataSource = FakeDataSource()
+        viewModel =
             RemindersListViewModel(ApplicationProvider.getApplicationContext(),
-                remindersDataSource)
+                fakeDataSource)
     }
 
     //TODO: provide testing to the RemindersListViewModel and its live data objects
     @Test
     fun loadReminders_isWorking() = mainCoroutineRule.runBlockingTest {
-        //GIVEN a reminder in the
+        //GIVEN a reminder in the list
         val reminder1 = ReminderDTO(
             "Title1",
             "Description1",
@@ -61,22 +61,42 @@ class RemindersListViewModelTest {
             1.0,
             1.0,
             "1")
-        remindersDataSource.saveReminder(reminder1)
+        fakeDataSource.saveReminder(reminder1)
+
         //WHEN
-        remindersListViewModel.loadReminders()
+        viewModel.loadReminders()
+
         //THEN
-        when(remindersListViewModel.remindersList.value){
-            null -> assertThat(remindersListViewModel.remindersList.value!!.size
+        when(viewModel.remindersList.value){
+            null -> assertThat(viewModel.remindersList.value!!.size
                     == 1 , `is` (false))
-            else -> assertThat(remindersListViewModel.remindersList.value!!.size, `is` (1))
+            else -> assertThat(viewModel.remindersList.value!!.size, `is` (1))
         }
+        assertThat(viewModel.showNoData.value, `is` (false))
     }
 
     fun invalidateShowNoData_isWorking(){
-
+        //WHEN
+        viewModel.showNoData.value = viewModel.remindersList.value == null ||
+                viewModel.remindersList.value?.isEmpty() == true
+        //THEN
+        assertThat(viewModel.showNoData.value, `is` (true))
     }
 
-    fun deleteAllReminder_isWorking(){
+    fun deleteAllReminder_isWorking() = mainCoroutineRule.runBlockingTest{
+        //GIVEN
+        val reminder1 = ReminderDTO(
+            "Title1",
+            "Description1",
+            "location1",
+            1.0,
+            1.0,
+            "1")
+        fakeDataSource.saveReminder(reminder1)
+        //WHEN
+        viewModel.deleteAllReminder()
+        //THEN
+        assertThat(viewModel.remindersList.value!!.isEmpty(), `is`(true))
 
     }
 }
