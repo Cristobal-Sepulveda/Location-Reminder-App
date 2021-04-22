@@ -6,28 +6,31 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.udacity.project4.locationreminders.MainCoroutineRule
 import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
+import com.udacity.project4.locationreminders.getOrAwaitValue
 import com.udacity.project4.ui.reminderListFragment.RemindersListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.core.Is.`is`
+import org.junit.After
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.stopKoin
+
+/**
+ * To test LiveData, i should consider 2 things, one, InstantTaskExecutorRule() and
+ * make sure that the LiveData is observed
+ *     //JUnit rules are classes that allow you to define some code that runs before and after each
+//test runs. This rule here runs all architecture components related background jobs in the
+//same thread. Remember to add the gradle dependency :
+// testImplementation "androidx.arch.core:core-testing:$archTestingVersion"
+ */
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
 class RemindersListViewModelTest {
-    /**
-     * To test LiveData, i should consider 2 things, one, InstantTaskExecutorRule() and
-     * make sure that the LiveData is observed
-     */
-
-    //JUnit rules are classes that allow you to define some code that runs before and after each
-    //test runs. This rule here runs all architecture components related background jobs in the
-    //same thread. Remember to add the gradle dependency :
-    // testImplementation "androidx.arch.core:core-testing:$archTestingVersion"
 
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
@@ -67,22 +70,26 @@ class RemindersListViewModelTest {
         viewModel.loadReminders()
 
         //THEN
-        when(viewModel.remindersList.value){
+        when(viewModel.remindersList.getOrAwaitValue()){
             null -> assertThat(viewModel.remindersList.value!!.size
                     == 1 , `is` (false))
             else -> assertThat(viewModel.remindersList.value!!.size, `is` (1))
         }
         assertThat(viewModel.showNoData.value, `is` (false))
+        stopKoin()
     }
 
+    @Test
     fun invalidateShowNoData_isWorking(){
         //WHEN
         viewModel.showNoData.value = viewModel.remindersList.value == null ||
                 viewModel.remindersList.value?.isEmpty() == true
         //THEN
         assertThat(viewModel.showNoData.value, `is` (true))
+        stopKoin()
     }
 
+    @Test
     fun deleteAllReminder_isWorking() = mainCoroutineRule.runBlockingTest{
         //GIVEN
         val reminder1 = ReminderDTO(
@@ -97,6 +104,6 @@ class RemindersListViewModelTest {
         viewModel.deleteAllReminder()
         //THEN
         assertThat(viewModel.remindersList.value!!.isEmpty(), `is`(true))
-
+        stopKoin()
     }
 }
