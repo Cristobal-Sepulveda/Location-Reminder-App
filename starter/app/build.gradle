@@ -9,6 +9,11 @@ android {
     compileSdkVersion rootProject.compileSdkVersion
     buildToolsVersion "29.0.3"
 
+    packagingOptions {
+        exclude 'META-INF/AL2.0'
+        exclude 'META-INF/LGPL2.1'
+    }
+
     defaultConfig {
         applicationId "com.udacity.project4"
         minSdkVersion rootProject.minSdkVersion

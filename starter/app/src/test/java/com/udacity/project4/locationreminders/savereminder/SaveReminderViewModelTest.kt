@@ -33,7 +33,8 @@ import org.koin.core.context.stopKoin
 //TODO: provide testing to the SaveReminderView and its live data objects
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
-class SaveReminderViewModelTest {
+class SaveReminderViewModelTest
+{
 
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
