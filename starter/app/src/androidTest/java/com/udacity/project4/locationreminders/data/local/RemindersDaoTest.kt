@@ -15,7 +15,6 @@ import org.junit.runner.RunWith;
 import kotlinx.coroutines.ExperimentalCoroutinesApi;
 import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Test
@@ -32,8 +31,14 @@ class RemindersDaoTest {
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
+    /**
+     * Subject on testing
+     */
     private lateinit var database: RemindersDatabase
 
+    /**
+     *  here im creating a database in memory for testing porpoise
+     */
     @Before
     fun settingDataBase(){
         database = Room.inMemoryDatabaseBuilder(
@@ -41,6 +46,9 @@ class RemindersDaoTest {
             RemindersDatabase::class.java).build()
     }
 
+    /**
+     * Here im cleaning the Memory that i use building the database
+     */
     @After
     fun cleaningMemory(){
         database.close()
@@ -48,7 +56,7 @@ class RemindersDaoTest {
 
     @Test
     fun allDaoMethods_areWorking() = mainCoroutineRule.runBlockingTest{
-        //Given - One newReminder
+        //Given - One new Reminder
         val reminder = ReminderDTO(
             "title",
         "description",
@@ -59,7 +67,7 @@ class RemindersDaoTest {
         //When - The we save a reminder
         database.reminderDao().saveReminder(reminder)
 
-        //Then - the database Size will be one
+        //Then - the database will return lists, a specific Reminder & delete all his Reminders
         assertThat("${database.reminderDao().getReminders().size}", `is` ("1"))
         assertThat(database.reminderDao().getReminderById(reminder.id)!!.title, `is`(reminder.title))
         database.reminderDao().deleteAllReminders()

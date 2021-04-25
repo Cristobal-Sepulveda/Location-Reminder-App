@@ -38,9 +38,11 @@ class SaveReminderViewModelTest
 
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
+
     /**
      *Class that allow me to use a boilerplate_code when i need it, just calling the class.
      */
+
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
     // Subject under test

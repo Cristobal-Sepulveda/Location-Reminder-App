@@ -103,33 +103,40 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
     @Test
     fun reminder_isDisplayedInUi()= mainCoroutineRule.runBlockingTest{
 
-    // GIVEN - Creating a reminder to add it to the DB
-    val reminder = ReminderDTO(
-        title = "Title",
-        description = "Description",
-        location = "Loc",
-        latitude = 0.0,
-        longitude = 0.0,
-    )
+        // GIVEN - Creating a reminder to add it to the DB
+        val reminder = ReminderDTO(
+            title = "Title",
+            description = "Description",
+            location = "Loc",
+            latitude = 0.0,
+            longitude = 0.0,
+        )
 
-    //WHEN - added to the Repository
+        //WHEN - added to the Repository
 
-    runBlocking {
-        repository.saveReminder(reminder)
-    }
+        runBlocking {
+            repository.saveReminder(reminder)
+        }
+        val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
+        val navController = Mockito.mock(NavController::class.java)
+        scenario.onFragment {
+            Navigation.setViewNavController(it.view!!,navController)}
+        Thread.sleep(2000)
 
-    val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
-    val navController = Mockito.mock(NavController::class.java)
-    scenario.onFragment {
-        Navigation.setViewNavController(it.view!!,navController)}
-    Thread.sleep(2000)
-    //THEN - correct title and description are displayed on reminders list
+        //THEN - correct title and description are displayed on reminders list
 
-    onView(withText("Title")).check(matches(isDisplayed()))
-    onView(withText("Description")).check(matches(isDisplayed()))
-    onView(withText("Loc")).check(matches(isDisplayed()))
+        onView(withText("Title")).check(matches(isDisplayed()))
+        onView(withText("Description")).check(matches(isDisplayed()))
+        onView(withText("Loc")).check(matches(isDisplayed()))
     }
 
 //    TODO: add testing for the error messages.
+    @Test
+    fun loadingAndErrorMessage_isWorking(){
+        //Given
 
+        //When
+
+        //Then
+    }
 }
