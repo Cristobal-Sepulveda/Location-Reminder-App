@@ -3,10 +3,12 @@ package com.udacity.project4.ui.reminderListFragment
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.udacity.project4.R
 import com.udacity.project4.base.BaseViewModel
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
+import kotlinx.android.synthetic.main.fragment_reminders.view.*
 import kotlinx.coroutines.launch
 
 class RemindersListViewModel(app: Application, private val dataSource: ReminderDataSource)

@@ -7,10 +7,12 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -20,9 +22,11 @@ import com.udacity.project4.R
 import com.udacity.project4.locationreminders.data.FakeAndroidDataSource
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
+import com.udacity.project4.locationreminders.data.dto.Result
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.ui.reminderListFragment.ReminderListFragment
+import com.udacity.project4.ui.reminderListFragment.ReminderListFragmentDirections
 import com.udacity.project4.ui.reminderListFragment.RemindersListViewModel
 import com.udacity.project4.ui.saveReminderFragment.SaveReminderViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,12 +38,14 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
 import org.koin.test.get
 import org.mockito.Mockito
+import org.mockito.Mockito.verify
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
@@ -47,15 +53,14 @@ import org.mockito.Mockito
 @MediumTest
 class ReminderListFragmentTest: AutoCloseKoinTest() {
 
-    private lateinit var repository: ReminderDataSource
-    private lateinit var appContext: Application
-
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
 
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
+    private lateinit var repository: ReminderDataSource
+    private lateinit var appContext: Application
 
     @Before
     fun init() {
@@ -65,7 +70,7 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
             viewModel {
                 RemindersListViewModel(
                     appContext,
-                    get() as FakeAndroidDataSource
+                    get() as ReminderDataSource
                 )
             }
             single { RemindersLocalRepository(get()) as ReminderDataSource }
@@ -78,13 +83,13 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
         //Get our real repository
         repository = get()
 
-        //clear the data to start fresh
+        //defining the viewModel
         runBlocking {
             repository.deleteAllReminders()
         }
     }
 
-//    TODO: test the navigation of the fragments.
+//    TODO: test the navigation of the fragment.
     fun navigation_isWorkingFine(){
         // Given -
     val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
@@ -93,16 +98,16 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
         Navigation.setViewNavController(it.view!!,navController)}
     Thread.sleep(2000)
         // When -
-
+    onView(withId(R.id.addReminderFAB)).perform(click())
         // Then -
-
+    verify(navController).navigate(
+        ReminderListFragmentDirections.toSaveReminder())
 
     }
 
 //    TODO: test the displayed data on the UI.
     @Test
     fun reminder_isDisplayedInUi()= mainCoroutineRule.runBlockingTest{
-
         // GIVEN - Creating a reminder to add it to the DB
         val reminder = ReminderDTO(
             title = "Title",
@@ -113,18 +118,14 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
         )
 
         //WHEN - added to the Repository
-
-        runBlocking {
-            repository.saveReminder(reminder)
-        }
+        repository.saveReminder(reminder)
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
         val navController = Mockito.mock(NavController::class.java)
         scenario.onFragment {
-            Navigation.setViewNavController(it.view!!,navController)}
-        Thread.sleep(2000)
+            Navigation.setViewNavController(it.view!!,navController)
+        }
 
         //THEN - correct title and description are displayed on reminders list
-
         onView(withText("Title")).check(matches(isDisplayed()))
         onView(withText("Description")).check(matches(isDisplayed()))
         onView(withText("Loc")).check(matches(isDisplayed()))
@@ -132,11 +133,18 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
 
 //    TODO: add testing for the error messages.
     @Test
-    fun loadingAndErrorMessage_isWorking(){
+    fun loadingAndErrorMessages_areWorking() = mainCoroutineRule.runBlockingTest{
         //Given
-
+        val reminder = ReminderDTO(
+            title = "Title",
+            description = "Description",
+            location = "Loc",
+            latitude = 0.0,
+            longitude = 0.0,
+        )
         //When
-
+        repository.saveReminder(reminder)
         //Then
+
     }
 }

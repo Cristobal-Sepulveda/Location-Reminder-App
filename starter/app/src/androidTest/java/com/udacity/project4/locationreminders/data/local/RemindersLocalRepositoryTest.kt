@@ -7,7 +7,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.udacity.project4.MainCoroutineRule
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
-import com.udacity.project4.locationreminders.data.dto.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -20,6 +19,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import com.udacity.project4.locationreminders.data.dto.Result
 
 //    TODO: Add testing implementation to the RemindersLocalRepository.kt
 @ExperimentalCoroutinesApi
@@ -59,38 +59,44 @@ class RemindersLocalRepositoryTest {
     }
 
     @Test
-    fun allRepositoryMethods_areWorking()= mainCoroutineRule.runBlockingTest{
+    fun allRepositoryMethods_areWorking()= mainCoroutineRule.runBlockingTest {
         // Given - One new Reminder
         val reminder = ReminderDTO(
-            "title",
-            "description",
-            "location",
-            1.0,
-            1.0,
+                "title",
+                "description",
+                "location",
+                1.0,
+                1.0,
         )
         val reminder2 = ReminderDTO(
-        "title2",
-        "description2",
-        "location2",
-        2.0,
-        2.0,
-    )
+                "title2",
+                "description2",
+                "location2",
+                2.0,
+                2.0,
+        )
         //When - The we save a reminder
         remindersLocalRepository.saveReminder(reminder)
         remindersLocalRepository.saveReminder(reminder2)
-
         //Then - The repository will return all the reminders & a specific Reminder
         assertThat(
-            "${(remindersLocalRepository.getReminders() as
-                    Result.Success<List<ReminderDTO>>).data.size}",`is` ("2") )
-        assertThat("${(remindersLocalRepository.getReminder(reminder2.id) as
-                Result.Success<ReminderDTO>).data}", `is`(reminder2))
-        assertThat(remindersLocalRepository.getReminder(reminder2.id) as Result.Error,`is` ("Reminder not found!") )
+                "${
+                    (remindersLocalRepository.getReminders() as
+                            Result.Success<List<ReminderDTO>>).data.size
+                }", `is`("2"))
+        assertThat(
+                (remindersLocalRepository.getReminder(reminder2.id) as
+                        Result.Success<ReminderDTO>).data.id, `is`(reminder2.id))
         remindersLocalRepository.deleteAllReminders()
         assertThat(
-            "${(remindersLocalRepository.getReminders() as 
-                    Result.Success<List<ReminderDTO>>).data.size}",`is` ("0") )
+                "${
+                    (remindersLocalRepository.getReminders() as
+                            Result.Success<List<ReminderDTO>>).data.size
+                }", `is`("0"))
+
+        assertThat("${(remindersLocalRepository.getReminder(reminder2.id) as 
+                Result.Error).message}",
+                `is` ("Reminder not found!") )
+
     }
-
-
 }

@@ -37,7 +37,9 @@ class ReminderListFragment : BaseFragment() {
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(false)
         setTitle(getString(R.string.app_name))
-        binding.refreshLayout.setOnRefreshListener { _viewModel.loadReminders() }
+        binding.refreshLayout.setOnRefreshListener {
+            _viewModel.loadReminders()
+        }
 
         return binding.root
     }
@@ -49,7 +51,18 @@ class ReminderListFragment : BaseFragment() {
         binding.addReminderFAB.setOnClickListener {
             navigateToAddReminder()
         }
+        binding.refreshLayout.setOnRefreshListener {
+            _viewModel.loadReminders()
+            binding.refreshLayout.isRefreshing = false
+        }
     }
+
+    override fun onResume() {
+        super.onResume()
+        //load the reminders list on the ui
+        _viewModel.loadReminders()
+    }
+
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
@@ -70,12 +83,6 @@ class ReminderListFragment : BaseFragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onResume() {
-        super.onResume()
-        //load the reminders list on the ui
-        _viewModel.loadReminders()
-    }
-
     private fun navigateToAddReminder() {
         //use the navigationCommand live data to navigate between the fragments
         _viewModel.navigationCommand.postValue(
@@ -88,7 +95,6 @@ class ReminderListFragment : BaseFragment() {
     private fun setupRecyclerView() {
         val adapter = RemindersListAdapter {
         }
-
 //        setup the recycler view using the extension function
         binding.reminderssRecyclerView.setup(adapter)
     }
