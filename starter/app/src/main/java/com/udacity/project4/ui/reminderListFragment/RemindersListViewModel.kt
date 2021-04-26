@@ -43,7 +43,7 @@ class RemindersListViewModel(app: Application, private val dataSource: ReminderD
                     remindersList.value = dataList
                 }
                 is Result.Error ->
-                    showSnackBar.value = result.message!!
+                    showSnackBar.value = "can't load the reminders"
             }
 
             //check if no data has to be shown
