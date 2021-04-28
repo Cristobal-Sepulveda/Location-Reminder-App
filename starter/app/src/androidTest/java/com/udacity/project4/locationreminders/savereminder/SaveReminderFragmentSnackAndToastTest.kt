@@ -23,12 +23,16 @@ import com.udacity.project4.FakeAndroidDataSource
 import com.udacity.project4.MainCoroutineRule
 import com.udacity.project4.R
 import com.udacity.project4.RemindersActivity
+import com.udacity.project4.locationreminders.data.ReminderDataSource
+import com.udacity.project4.locationreminders.data.local.LocalDB
+import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment
 import com.udacity.project4.ui.saveReminderFragment.SaveReminderViewModel
 import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.monitorFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.CoreMatchers.not
 import org.junit.Before
 import org.junit.Rule
@@ -39,6 +43,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
+import org.koin.test.KoinTest
 import org.koin.test.inject
 import org.mockito.Mockito.mock
 
@@ -46,7 +51,7 @@ import org.mockito.Mockito.mock
 @ExperimentalCoroutinesApi
 //UI Testing
 @MediumTest
-class SaveReminderFragmentSnackAndToastTest: AutoCloseKoinTest() {
+class SaveReminderFragmentSnackAndToastTest {
 
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
@@ -58,31 +63,7 @@ class SaveReminderFragmentSnackAndToastTest: AutoCloseKoinTest() {
     val activityRule: ActivityTestRule<RemindersActivity> =
         ActivityTestRule(RemindersActivity::class.java)
 
-    private lateinit var appContext: Application
     private val dataBindingIdlingResource = DataBindingIdlingResource()
-    private val viewModel: SaveReminderViewModel by inject()
-
-    @Before
-    fun init() {
-        stopKoin()//stop the original app koin
-        appContext = ApplicationProvider.getApplicationContext()
-        val myModule = module {
-            viewModel {
-                SaveReminderViewModel(
-                    appContext,
-                    get() as FakeAndroidDataSource
-                )
-            }
-            single { FakeAndroidDataSource() }
-        }
-        //declare a new koin module
-        startKoin {
-            modules(listOf(myModule))
-        }
-
-        runBlocking {
-        }
-    }
 
     @Test
     fun snackbars_areWorking() {
@@ -105,7 +86,7 @@ class SaveReminderFragmentSnackAndToastTest: AutoCloseKoinTest() {
     }
 
     @Test
-    fun toast_isWorking(){
+    fun toast_isWorking()= mainCoroutineRule.runBlockingTest  {
         // Given
         val scenario = launchFragmentInContainer<SaveReminderFragment>(Bundle(), R.style.AppTheme)
         dataBindingIdlingResource.monitorFragment(scenario)
@@ -121,8 +102,8 @@ class SaveReminderFragmentSnackAndToastTest: AutoCloseKoinTest() {
 
         // Then
         onView(withText(R.string.reminder_saved))
-            .inRoot(withDecorView(not(activityRule.activity
-                .window.decorView
-            ))) .check(matches(isDisplayed()))
+                .inRoot(withDecorView(not(activityRule.activity
+                        .window.decorView
+                ))).check(matches(isDisplayed()))
     }
 }

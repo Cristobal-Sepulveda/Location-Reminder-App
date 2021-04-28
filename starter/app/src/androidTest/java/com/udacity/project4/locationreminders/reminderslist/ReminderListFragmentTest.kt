@@ -6,7 +6,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -63,7 +63,7 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
     @Before
     fun init() {
         stopKoin()//stop the original app koin
-        appContext = getApplicationContext()
+        appContext = ApplicationProvider.getApplicationContext()
         val myModule = module {
             viewModel {
                 RemindersListViewModel(
@@ -148,7 +148,6 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
         // When
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
         dataBindingIdlingResource.monitorFragment(scenario)
-        Thread.sleep(5000)
         // Then
         onView(withId(id.snackbar_text))
                 .check(matches(withText("Test exception")))
