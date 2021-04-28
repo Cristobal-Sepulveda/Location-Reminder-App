@@ -10,20 +10,21 @@ import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import com.google.android.material.R.*
 import com.udacity.project4.MainCoroutineRule
 import com.udacity.project4.R
+import com.udacity.project4.FakeAndroidDataSource
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
-import com.udacity.project4.locationreminders.data.dto.Result
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.ui.reminderListFragment.ReminderListFragment
 import com.udacity.project4.ui.reminderListFragment.ReminderListFragmentDirections
 import com.udacity.project4.ui.reminderListFragment.RemindersListViewModel
+import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment
 import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.monitorFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,11 +39,9 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
-import org.koin.test.get
-import org.mockito.Mockito
+import org.koin.test.inject
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
-import java.lang.Exception
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
@@ -56,9 +55,10 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
-    private lateinit var repository: ReminderDataSource
+    private val repository: FakeAndroidDataSource by inject()
     private lateinit var appContext: Application
     private val dataBindingIdlingResource = DataBindingIdlingResource()
+    private val viewModel: RemindersListViewModel by inject()
 
     @Before
     fun init() {
@@ -68,18 +68,17 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
             viewModel {
                 RemindersListViewModel(
                     appContext,
-                    get() as ReminderDataSource
+                    get() as FakeAndroidDataSource
                 )
             }
             single { RemindersLocalRepository(get()) as ReminderDataSource }
             single { LocalDB.createRemindersDao(appContext) }
+            single { FakeAndroidDataSource() }
         }
         //declare a new koin module
         startKoin {
             modules(listOf(myModule))
         }
-        //Get our real repository
-        repository = get()
 
         runBlocking {
             repository.deleteAllReminders()
@@ -97,7 +96,6 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
             latitude = 0.0,
             longitude = 0.0,
         )
-
         //WHEN - added to the Repository
         runBlocking {
             repository.apply {
@@ -135,13 +133,24 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
 
     @Test
     fun noDataView_isWorking() = mainCoroutineRule.runBlockingTest{
-        //Given
-
+        //When
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
         dataBindingIdlingResource.monitorFragment(scenario)
-
-        //When - added to the Repository
         //Then
         onView(withId(R.id.noDataTextView)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun snackBarMessage_isWorking(){
+        // Given
+        repository.setReturnError(true)
+
+        // When
+        val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
+        dataBindingIdlingResource.monitorFragment(scenario)
+        Thread.sleep(5000)
+        // Then
+        onView(withId(id.snackbar_text))
+                .check(matches(withText("Test exception")))
     }
 }

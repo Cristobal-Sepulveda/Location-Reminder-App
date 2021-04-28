@@ -13,6 +13,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
@@ -23,14 +24,16 @@ import org.koin.test.get
 @LargeTest
 //END TO END test to black box test the app
 class RemindersActivityTest :
-    AutoCloseKoinTest() {// Extended Koin Test - embed autoclose @after method to close Koin after every test
+    AutoCloseKoinTest() {
+    // Extended Koin Test - embed autoclose @after method to close Koin after every test
 
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
 
     /**
-     * As we use Koin as a Service Locator Library to develop our code, we'll also use Koin to test our code.
-     * at this step we will initialize Koin related code to be able to use it in out testing.
+     * As we use Koin as a Service Locator Library to develop our code, we'll also use Koin to test
+     * our code. at this step we will initialize Koin related code to be able to use it in out
+     * testing.
      */
     @Before
     fun init() {
