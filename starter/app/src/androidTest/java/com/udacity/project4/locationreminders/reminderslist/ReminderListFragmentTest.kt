@@ -24,7 +24,6 @@ import com.udacity.project4.locationreminders.data.local.RemindersLocalRepositor
 import com.udacity.project4.ui.reminderListFragment.ReminderListFragment
 import com.udacity.project4.ui.reminderListFragment.ReminderListFragmentDirections
 import com.udacity.project4.ui.reminderListFragment.RemindersListViewModel
-import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment
 import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.monitorFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -143,7 +142,7 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
     @Test
     fun snackBarMessage_isWorking(){
         // Given
-        repository.setReturnError(true)
+        repository.shouldReturnError(true)
 
         // When
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)

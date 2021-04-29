@@ -40,7 +40,7 @@ class RemindersListViewModel(app: Application, private val dataSource: ReminderD
                             reminder.id
                         )
                     })
-                    remindersList.value = dataList
+                    remindersList.postValue(dataList)
                 }
                 is Result.Error ->{
                     showSnackBar.value = result.message!!
@@ -56,7 +56,7 @@ class RemindersListViewModel(app: Application, private val dataSource: ReminderD
      * Inform the user that there's not any data if the remindersList is empty
      */
     private fun invalidateShowNoData() {
-        showNoData.value = remindersList.value == null || remindersList.value!!.isEmpty()
+        showNoData.postValue(remindersList.value == null || remindersList.value!!.isEmpty())
     }
     fun deleteAllReminder() {
         viewModelScope.launch {

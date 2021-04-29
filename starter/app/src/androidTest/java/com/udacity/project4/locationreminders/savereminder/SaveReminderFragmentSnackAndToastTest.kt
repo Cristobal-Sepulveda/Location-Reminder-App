@@ -1,12 +1,10 @@
 package com.udacity.project4.locationreminders.savereminder
 
-import android.app.Application
 import android.os.Bundle
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -19,32 +17,18 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
-import com.udacity.project4.FakeAndroidDataSource
 import com.udacity.project4.MainCoroutineRule
 import com.udacity.project4.R
 import com.udacity.project4.RemindersActivity
-import com.udacity.project4.locationreminders.data.ReminderDataSource
-import com.udacity.project4.locationreminders.data.local.LocalDB
-import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment
-import com.udacity.project4.ui.saveReminderFragment.SaveReminderViewModel
 import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.monitorFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.CoreMatchers.not
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
-import org.koin.test.AutoCloseKoinTest
-import org.koin.test.KoinTest
-import org.koin.test.inject
 import org.mockito.Mockito.mock
 
 @RunWith(AndroidJUnit4::class)
@@ -99,6 +83,7 @@ class SaveReminderFragmentSnackAndToastTest {
         onView(withId(R.id.reminderTitle)).perform(typeText("title"))
         closeSoftKeyboard()
         onView(withId(R.id.saveReminder)).perform(click())
+        Thread.sleep(3000)
 
         // Then
         onView(withText(R.string.reminder_saved))

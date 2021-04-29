@@ -2,6 +2,8 @@ package com.udacity.project4
 
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.udacity.project4.locationreminders.data.ReminderDataSource
@@ -11,6 +13,7 @@ import com.udacity.project4.ui.reminderListFragment.RemindersListViewModel
 import com.udacity.project4.ui.saveReminderFragment.SaveReminderViewModel
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -69,6 +72,9 @@ class RemindersActivityTest :
     }
 
 
-//    TODO: add End to End testing to the app
-
+/*//    TODO: add End to End testing to the app
+    @Test
+    fun endToEndTest_worksFine(){
+        onView(withId(R.id.))
+    }*/
 }

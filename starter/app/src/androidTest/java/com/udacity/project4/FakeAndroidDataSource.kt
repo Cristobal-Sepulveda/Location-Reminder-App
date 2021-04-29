@@ -1,7 +1,5 @@
 package com.udacity.project4
 
-import android.app.Application
-import androidx.test.ext.junit.rules.activityScenarioRule
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
@@ -10,10 +8,10 @@ import com.udacity.project4.locationreminders.data.dto.Result
 // Use FakeDataSource that acts as a test double to the LocalDataSource
 class FakeAndroidDataSource(var reminders: MutableList<ReminderDTO>? = mutableListOf()): ReminderDataSource {
 
-    private var shouldReturnError = false
+    private var setReturnError = false
 
-    fun setReturnError(value: Boolean) {
-        shouldReturnError = value
+    fun shouldReturnError(value: Boolean) {
+        setReturnError = value
     }
 
     override suspend fun saveReminder(reminder: ReminderDTO) {
@@ -24,7 +22,7 @@ class FakeAndroidDataSource(var reminders: MutableList<ReminderDTO>? = mutableLi
     }
 
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
-        return if (shouldReturnError || reminders == null) {
+        return if (setReturnError || reminders == null) {
             Result.Error("Test exception")
         }else
             Result.Success(ArrayList(reminders))
