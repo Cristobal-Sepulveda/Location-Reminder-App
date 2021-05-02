@@ -71,12 +71,12 @@ class SaveReminderViewModelTest
         //WHEN
         viewModel.onClear()
         //THEN
-        assertThat(viewModel.reminderTitle.value ,`is` (nullValue()))
-        assertThat(viewModel.reminderDescription.value,`is`(nullValue()))
-        assertThat(viewModel.reminderSelectedLocationStr.value,`is`(nullValue()))
-        assertThat(viewModel.selectedPOI.value,`is`(nullValue()))
-        assertThat(viewModel.latitude.value,`is`(nullValue()))
-        assertThat(viewModel.longitude.value,`is`(nullValue()))
+        assertThat(viewModel.reminderTitle.getOrAwaitValue() ,`is` (nullValue()))
+        assertThat(viewModel.reminderDescription.getOrAwaitValue(),`is`(nullValue()))
+        assertThat(viewModel.reminderSelectedLocationStr.getOrAwaitValue(),`is`(nullValue()))
+        assertThat(viewModel.selectedPOI.getOrAwaitValue(),`is`(nullValue()))
+        assertThat(viewModel.latitude.getOrAwaitValue(),`is`(nullValue()))
+        assertThat(viewModel.longitude.getOrAwaitValue(),`is`(nullValue()))
         stopKoin()
     }
 
@@ -127,10 +127,10 @@ class SaveReminderViewModelTest
         viewModel.saveReminder(reminder)
 
         //THEN - show loading snackbar
-        assertThat(viewModel.showLoading.value, `is`(true))
+        assertThat(viewModel.showLoading.getOrAwaitValue(), `is`(true))
 
         mainCoroutineRule.resumeDispatcher()
-        assertThat(viewModel.showLoading.value, `is`(false))
+        assertThat(viewModel.showLoading.getOrAwaitValue(), `is`(false))
         stopKoin()
     }
 

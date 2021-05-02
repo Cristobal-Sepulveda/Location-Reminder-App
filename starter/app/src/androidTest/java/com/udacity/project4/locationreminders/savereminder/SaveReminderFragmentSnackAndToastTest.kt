@@ -137,20 +137,22 @@ class SaveReminderFragmentSnackAndToastTest: AutoCloseKoinTest() {
         closeSoftKeyboard()
         onView(withId(R.id.selectLocation)).perform(click())
         onView(withId(R.id.map)).perform(longClick())
+        Thread.sleep(2000)
         /**
          * Method that clicks on a view, in the given coordinates, the coordinates start at
          * the top-left corner in 0,0
          */
         onView(withId(R.id.map)).perform(clickOnCenter())
+        Thread.sleep(2000)
         onView(withId(R.id.savePOILatLgn_button)).perform(click())
-        Thread.sleep(1000)
         onView(withId(R.id.saveReminder))
+        Thread.sleep(2000)
 
         // Then
         onView(withText(R.string.reminder_saved))
                 .inRoot(withDecorView(not(activityRule.activity
                         .window.decorView
                 ))).check(matches(isDisplayed()))
-    scenario.close()
+        scenario.close()
     }
 }

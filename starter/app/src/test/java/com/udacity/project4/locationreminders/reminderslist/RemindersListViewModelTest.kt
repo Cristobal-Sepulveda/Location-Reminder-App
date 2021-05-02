@@ -71,11 +71,11 @@ class RemindersListViewModelTest {
 
         //THEN
         when(viewModel.remindersList.getOrAwaitValue()){
-            null -> assertThat(viewModel.remindersList.value!!.size
+            null -> assertThat(viewModel.remindersList.getOrAwaitValue()!!.size
                     == 1 , `is` (false))
-            else -> assertThat(viewModel.remindersList.value!!.size, `is` (1))
+            else -> assertThat(viewModel.remindersList.getOrAwaitValue()!!.size, `is` (1))
         }
-        assertThat(viewModel.showNoData.value, `is` (false))
+        assertThat(viewModel.showNoData.getOrAwaitValue(), `is` (false))
         stopKoin()
     }
 
@@ -103,7 +103,7 @@ class RemindersListViewModelTest {
         //WHEN
         viewModel.deleteAllReminder()
         //THEN
-        assertThat(viewModel.remindersList.value!!.isEmpty(), `is`(true))
+        assertThat(viewModel.remindersList.getOrAwaitValue()!!.isEmpty(), `is`(true))
         stopKoin()
     }
 }
