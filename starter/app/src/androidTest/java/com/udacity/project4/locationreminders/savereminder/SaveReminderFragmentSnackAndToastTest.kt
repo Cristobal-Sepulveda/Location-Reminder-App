@@ -7,8 +7,7 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.withDecorView
@@ -22,6 +21,7 @@ import com.udacity.project4.R
 import com.udacity.project4.RemindersActivity
 import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment
 import com.udacity.project4.util.DataBindingIdlingResource
+import com.udacity.project4.util.clickOnView
 import com.udacity.project4.util.monitorFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
@@ -82,8 +82,19 @@ class SaveReminderFragmentSnackAndToastTest {
         }
         onView(withId(R.id.reminderTitle)).perform(typeText("title"))
         closeSoftKeyboard()
-        onView(withId(R.id.saveReminder)).perform(click())
+        onView(withId(R.id.reminderDescription)).perform(typeText("description"))
+        closeSoftKeyboard()
+        onView(withId(R.id.selectLocation)).perform(click())
+        onView(withId(R.id.map)).perform(longClick())
+
+        /**
+         * Method that clicks on a view, in the given coordinates, the coordinates start at
+         * the top-left corner in 0,0
+         */
+        onView(withId(R.id.map)).perform(clickOnView.clickIn(50,49))
+        onView(withId(R.id.savePOILatLgn_button)).perform(click())
         Thread.sleep(3000)
+        onView(withId(R.id.saveReminder))
 
         // Then
         onView(withText(R.string.reminder_saved))
