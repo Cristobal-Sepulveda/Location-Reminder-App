@@ -1,11 +1,11 @@
 package com.udacity.project4.locationreminders.savereminder
 
 import android.app.Application
+import android.os.Build
 import android.os.Bundle
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.fragment.app.testing.launchFragmentInContainer
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
+import androidx.test.InstrumentationRegistry.getTargetContext
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.closeSoftKeyboard
@@ -18,7 +18,9 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.rule.ActivityTestRule
+import androidx.test.rule.GrantPermissionRule
 import com.udacity.project4.MainCoroutineRule
 import com.udacity.project4.R
 import com.udacity.project4.RemindersActivity
@@ -43,7 +45,7 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
 import org.koin.test.get
-import org.mockito.Mockito.mock
+
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
@@ -136,23 +138,29 @@ class SaveReminderFragmentSnackAndToastTest: AutoCloseKoinTest() {
         onView(withId(R.id.reminderDescription)).perform(typeText("description"))
         closeSoftKeyboard()
         onView(withId(R.id.selectLocation)).perform(click())
+        Thread.sleep(4000)
         onView(withId(R.id.map)).perform(longClick())
-        Thread.sleep(2000)
+
         /**
          * Method that clicks on a view, in the given coordinates, the coordinates start at
          * the top-left corner in 0,0
          */
+        Thread.sleep(3000)
         onView(withId(R.id.map)).perform(clickOnCenter())
         Thread.sleep(2000)
         onView(withId(R.id.savePOILatLgn_button)).perform(click())
-        onView(withId(R.id.saveReminder))
-        Thread.sleep(2000)
-
+        onView(withId(R.id.saveReminder)).perform(click())
         // Then
+        Thread.sleep(2000)
         onView(withText(R.string.reminder_saved))
-                .inRoot(withDecorView(not(activityRule.activity
-                        .window.decorView
-                ))).check(matches(isDisplayed()))
+            .inRoot(
+                withDecorView(
+                    not(
+                        activityRule.activity
+                            .window.decorView
+                    )
+                )
+            ).check(matches(isDisplayed()))
         scenario.close()
     }
 }
