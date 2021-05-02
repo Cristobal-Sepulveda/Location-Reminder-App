@@ -128,7 +128,6 @@ class SaveReminderFragmentSnackAndToastTest: AutoCloseKoinTest() {
         // Given
         val scenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(scenario)
-        val navController = mock(NavController::class.java)
 
         // When
         onView(withId(R.id.addReminderFAB)).perform(click())
@@ -142,8 +141,9 @@ class SaveReminderFragmentSnackAndToastTest: AutoCloseKoinTest() {
          * Method that clicks on a view, in the given coordinates, the coordinates start at
          * the top-left corner in 0,0
          */
-        onView(withId(R.id.map)).perform(clickPercent(51f,51f))
+        onView(withId(R.id.map)).perform(clickOnCenter())
         onView(withId(R.id.savePOILatLgn_button)).perform(click())
+        Thread.sleep(1000)
         onView(withId(R.id.saveReminder))
 
         // Then
