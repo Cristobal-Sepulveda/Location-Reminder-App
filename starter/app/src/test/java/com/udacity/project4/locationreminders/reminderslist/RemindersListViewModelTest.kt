@@ -70,11 +70,15 @@ class RemindersListViewModelTest {
         viewModel.loadReminders()
 
         //THEN
+        pauseDispatcher()
+        assertThat(viewModel.showLoading.getOrAwaitValue(),`is` (true)) //CHECK_LOADING
+        resumeDispatcher()
         when(viewModel.remindersList.getOrAwaitValue()){
             null -> assertThat(viewModel.remindersList.getOrAwaitValue()!!.size
                     == 1 , `is` (false))
             else -> assertThat(viewModel.remindersList.getOrAwaitValue()!!.size, `is` (1))
         }
+        assertThat(viewModel.showLoading.getOrAwaitValue(),`is` (false)) //CHECK_LOADING
         assertThat(viewModel.showNoData.getOrAwaitValue(), `is` (false))
         stopKoin()
     }

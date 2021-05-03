@@ -126,7 +126,7 @@ class SaveReminderViewModelTest
         //WHEN - saving reminder
         viewModel.saveReminder(reminder)
 
-        //THEN - show loading snackbar
+        //THEN - check_loading
         assertThat(viewModel.showLoading.getOrAwaitValue(), `is`(true))
 
         mainCoroutineRule.resumeDispatcher()
