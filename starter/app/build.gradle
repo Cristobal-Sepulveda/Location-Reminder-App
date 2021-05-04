@@ -14,9 +14,17 @@ android {
         exclude 'META-INF/LGPL2.1'
     }
 
+    // Configure only for each module that uses Java 8
+    // language features (either in its source code or
+    // through dependencies).
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     defaultConfig {
         applicationId "com.udacity.project4"
-        minSdkVersion rootProject.minSdkVersion
+        minSdkVersion 26
         targetSdkVersion rootProject.targetSdkVersion
         versionCode 1
         versionName "1.0"
