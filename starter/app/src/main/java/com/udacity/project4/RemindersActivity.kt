@@ -29,7 +29,6 @@ class RemindersActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_reminders)
         requestForegroundLocationPermissions()
-
     }
 
     override fun onResume() {

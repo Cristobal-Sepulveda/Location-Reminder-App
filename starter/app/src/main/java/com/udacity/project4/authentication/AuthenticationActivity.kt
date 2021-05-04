@@ -1,4 +1,4 @@
-package com.udacity.project4
+package com.udacity.project4.authentication
 
 import android.app.Activity
 import android.content.Intent
@@ -15,8 +15,11 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.udacity.project4.R
+import com.udacity.project4.RemindersActivity
 import com.udacity.project4.databinding.ActivityAuthenticationBinding
 import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.REQUEST_TURN_DEVICE_LOCATION_ON
+import com.udacity.project4.utils.sharedPreference
 
 
 /**
@@ -26,12 +29,10 @@ import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Compani
 class AuthenticationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAuthenticationBinding
-
     companion object {
         const val TAG = "LoginFragment"
         const val SIGN_IN_RESULT_CODE = 1001
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -42,11 +43,15 @@ class AuthenticationActivity : AppCompatActivity() {
         }
         checkDeviceLocationSettings()
 
+        if(sharedPreference.sharedPref.getBoolean(sharedPreference.key, true)){
+            val intent = Intent(this, RemindersActivity::class.java)
+            finish()
+            startActivity(intent)
+        }
     }
 
-    // Give users the option to sign in / register with their email or Google account.
-    // If users choose to register with their email,
-    // they will need to create a password as well.
+    /** Give users the option to sign in / register with their email or Google account.
+    * If users choose to register with their email, they will need to create a password as well.*/
     private fun launchSignInFlow() {
         /** What im doing here is telling to the firebaseUI how i want to let the user log-in */
         val providers = arrayListOf(AuthUI.IdpConfig.EmailBuilder().build(),
@@ -55,11 +60,14 @@ class AuthenticationActivity : AppCompatActivity() {
         /** Create and launch sign-in intent.
          *  We listen to the response of this activity with the
          *  SIGN_IN_REQUEST_CODE*/
-        startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().
-        setAvailableProviders(providers).
-        setTheme(R.style.LoginTheme).
-        setLogo(R.drawable.map)
-                .build(), SIGN_IN_RESULT_CODE)
+        startActivityForResult(
+            AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .setTheme(R.style.LoginTheme)
+                .setLogo(R.drawable.map)
+                .build(), SIGN_IN_RESULT_CODE
+        )
         }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -73,9 +81,14 @@ class AuthenticationActivity : AppCompatActivity() {
             if(resultCode == Activity.RESULT_OK){
                 //User successfully signed in
                 //          TODO: If the user was authenticated, send him to RemindersActivity
-                Log.i(TAG, "Successfully signed in user ${FirebaseAuth.getInstance().currentUser?.displayName}")
+                Log.i(
+                    TAG,
+                    "Successfully signed in user ${FirebaseAuth.getInstance().currentUser?.displayName}")
                 val firebaseAuth = FirebaseAuth.getInstance()
                 if(firebaseAuth.currentUser != null) {
+                    val editor = sharedPreference.sharedPref.edit()
+                    editor.putBoolean(sharedPreference.key, true)
+                    editor.apply()
                     val intent = Intent(this, RemindersActivity::class.java)
                     finish()
                     startActivity(intent)
@@ -122,7 +135,7 @@ class AuthenticationActivity : AppCompatActivity() {
             } else {
                 Snackbar.make(
                         binding.container,
-                        R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
+                    R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
                 ).setAction(android.R.string.ok) {
                     checkDeviceLocationSettings()
                 }.show()

@@ -240,7 +240,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         when (_viewModel.selectedPOICount.value) {
             null -> {
                 Toast.makeText(requireActivity().applicationContext,
-                        "You need to select a POI before to save something",
+                        "You need to select any place before to save something",
                         Toast.LENGTH_LONG).show()
             }
             //        TODO: When the user confirms on the selected location,

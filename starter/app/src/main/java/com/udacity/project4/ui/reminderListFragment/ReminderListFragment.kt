@@ -4,19 +4,16 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.udacity.project4.R
-import com.udacity.project4.AuthenticationActivity
+import com.udacity.project4.authentication.AuthenticationActivity
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentRemindersBinding
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import com.udacity.project4.utils.setTitle
 import com.udacity.project4.utils.setup
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import com.udacity.project4.utils.sharedPreference
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ReminderListFragment : BaseFragment() {
@@ -63,7 +60,6 @@ class ReminderListFragment : BaseFragment() {
         _viewModel.loadReminders()
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
 //        display logout as menu item
@@ -73,6 +69,9 @@ class ReminderListFragment : BaseFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.logout -> {
+                val editor = sharedPreference.sharedPref.edit()
+                editor.putBoolean(sharedPreference.key, false)
+                editor.apply()
                 FirebaseAuth.getInstance().signOut()
                 requireActivity().finish()
                 startActivity(Intent(requireActivity().applicationContext, AuthenticationActivity::class.java))
