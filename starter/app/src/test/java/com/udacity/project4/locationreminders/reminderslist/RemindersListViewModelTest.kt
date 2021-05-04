@@ -67,10 +67,10 @@ class RemindersListViewModelTest {
         fakeDataSource.saveReminder(reminder1)
 
         //WHEN
+        pauseDispatcher()
         viewModel.loadReminders()
 
         //THEN
-        pauseDispatcher()
         assertThat(viewModel.showLoading.getOrAwaitValue(),`is` (true)) //CHECK_LOADING
         resumeDispatcher()
         when(viewModel.remindersList.getOrAwaitValue()){

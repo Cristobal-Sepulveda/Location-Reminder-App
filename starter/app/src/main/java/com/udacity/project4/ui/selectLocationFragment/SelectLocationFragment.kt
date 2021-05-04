@@ -69,18 +69,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         fusedLocationProviderClient = LocationServices
             .getFusedLocationProviderClient(requireActivity())
 
-//        TODO: call this function after the user confirms on the selected location
-        onLocationSelected()
-
-
         binding.savePOILatLgnButton.setOnClickListener {
             onLocationSelected()
         }
 
         return binding.root
     }
-
-    //        TODO: add style to the map
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.map_options, menu)
@@ -111,7 +105,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         map = googleMap
         getDeviceLocation()
         setMapStyle(map)
-/*        setMapLongClick(map)*/
+/*      setMapLongClick(map)*/
         setPoiClick(map)
     }
 
@@ -209,7 +203,29 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             }
             poiMarker.showInfoWindow()
         }
-
+        map.setOnMapClickListener {
+            val snippet = String.format(
+                Locale.getDefault(),
+                "Lat: %1$.5f, Long: %2$.5f",
+                it.latitude,
+                it.longitude
+            )
+            val mapMarker = map.addMarker(
+                MarkerOptions()
+                    .position(it)
+                    .title("${it.latitude} - ${it.longitude}")
+                    .snippet(snippet)
+            )
+            if (_viewModel.selectedPOICount.value == null) {
+                _viewModel.selectedPOICount.value = 1
+                _viewModel.latitude.value = it.latitude
+                _viewModel.longitude.value = it.longitude
+                _viewModel.reminderSelectedLocationStr.value = "${it.latitude} -- ${it.longitude}"
+            }else{
+                _viewModel.selectedPOICount.value = 2
+            }
+            mapMarker.showInfoWindow()
+        }
         map.setOnMapLongClickListener {
             map.clear()
             _viewModel.selectedPOICount.value = null

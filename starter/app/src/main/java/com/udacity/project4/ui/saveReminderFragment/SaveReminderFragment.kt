@@ -98,7 +98,7 @@ class SaveReminderFragment : BaseFragment() {
             try{
             _viewModel.validateAndSaveReminder(reminderDataItem)
                 //TODO: 1) add a geofencing request
-        /*        addGeofence(reminderDataItem, _viewModel.validateEnteredData(reminderDataItem))*/
+                addGeofence(reminderDataItem, _viewModel.validateEnteredData(reminderDataItem))
             }catch(e: Exception){
                 Toast.makeText(context, "Error: $e", Toast.LENGTH_LONG).show()
             }
