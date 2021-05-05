@@ -13,3 +13,18 @@ fun clickOnCenter(): ViewAction {
         InputDevice.SOURCE_MOUSE,
         MotionEvent.BUTTON_PRIMARY)
 }
+
+fun clickInCoordinates(x: Int, y: Int): ViewAction {
+    return GeneralClickAction(
+            Tap.SINGLE,
+            CoordinatesProvider { view ->
+                val screenPos = IntArray(2)
+                view?.getLocationOnScreen(screenPos)
+                val screenX = (screenPos[0] + x).toFloat()
+                val screenY = (screenPos[1] + y).toFloat()
+                floatArrayOf(screenX, screenY)
+                },
+            Press.FINGER,
+            InputDevice.SOURCE_MOUSE,
+            MotionEvent.BUTTON_PRIMARY)
+}

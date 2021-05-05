@@ -132,14 +132,12 @@ class RemindersActivityTest : AutoCloseKoinTest() {
         onView(withId(R.id.reminderDescription)).perform(typeText("description"))
         onView(withId(R.id.selectLocation)).perform(click())
         Thread.sleep(2000)
-        onView(withId(R.id.map)).perform(ViewActions.longClick())
         /**
          * Method that clicks on a view, in the given coordinates, the coordinates start at
          * the top-left corner in 0,0
          */
-        Thread.sleep(2000)
-        onView(withId(R.id.map)).perform(clickOnCenter())
-        Thread.sleep(2000)
+        onView(withId(R.id.map)).perform(clickInCoordinates(200,300))
+        Thread.sleep(5000)
         onView(withId(R.id.savePOILatLgn_button)).perform(click())
         onView(withId(R.id.saveReminder)).perform(click())
         Thread.sleep(2000)

@@ -105,8 +105,132 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         map = googleMap
         getDeviceLocation()
         setMapStyle(map)
-/*      setMapLongClick(map)*/
-        setPoiClick(map)
+        setPOIOrAnyPlaceOnClick(map)
+    }
+
+    /**put a marker to location that the user selected.
+     * Put a marker on a POI that the user selected.
+     * This method will be used in onMapReady()
+     * */
+    private fun setPOIOrAnyPlaceOnClick(map: GoogleMap) {
+        map.setOnPoiClickListener { poi ->
+            val snippet = String.format(
+                    Locale.getDefault(),
+                    "Lat: %1$.5f, Long: %2$.5f",
+                    poi.latLng.latitude,
+                    poi.latLng.longitude
+            )
+            if (_viewModel.selectedPOICount.value == null) {
+                map.clear()
+                val markerOnPOI = map.addMarker(
+                        MarkerOptions()
+                                .position(poi.latLng)
+                                .title(poi.name)
+                                .snippet(snippet)
+                )
+                markerOnPOI.showInfoWindow()
+                _viewModel.selectedPOICount.value = 1
+                _viewModel.latitude.value = poi.latLng.latitude
+                _viewModel.longitude.value = poi.latLng.longitude
+                _viewModel.reminderSelectedLocationStr.value = poi.name
+            }
+            else{
+                map.clear()
+                val markerOnPOI = map.addMarker(
+                        MarkerOptions()
+                                .position(poi.latLng)
+                                .title(poi.name)
+                                .snippet(snippet)
+                )
+                markerOnPOI.showInfoWindow()
+                _viewModel.latitude.value = poi.latLng.latitude
+                _viewModel.longitude.value = poi.latLng.longitude
+                _viewModel.reminderSelectedLocationStr.value = poi.name
+            }
+        }
+
+        map.setOnMapClickListener {
+            val snippet = String.format(
+                Locale.getDefault(),
+                "Lat: %1$.5f, Long: %2$.5f",
+                it.latitude,
+                it.longitude
+            )
+            if (_viewModel.selectedPOICount.value == null) {
+                map.clear()
+                val mapMarker = map.addMarker(
+                        MarkerOptions()
+                                .position(it)
+                                .title("${it.latitude} - ${it.longitude}")
+                                .snippet(snippet)
+                )
+                mapMarker.showInfoWindow()
+                _viewModel.selectedPOICount.value = 1
+                _viewModel.latitude.value = it.latitude
+                _viewModel.longitude.value = it.longitude
+                _viewModel.reminderSelectedLocationStr.value = "${it.latitude} -- ${it.longitude}"
+            }
+            else{
+                map.clear()
+                val markerOnPlace = map.addMarker(
+                        MarkerOptions()
+                                .position(it)
+                                .title("${it.latitude} - ${it.longitude}")
+                                .snippet(snippet)
+                )
+                markerOnPlace.showInfoWindow()
+                _viewModel.latitude.value = it.latitude
+                _viewModel.longitude.value = it.longitude
+                _viewModel.reminderSelectedLocationStr.value = "${it.latitude} -- ${it.longitude}"
+            }
+        }
+
+    }
+
+    /**
+     * This method will be used when the user clicks on save_button!
+     * */
+    private fun onLocationSelected() {
+        when (_viewModel.selectedPOICount.value) {
+            null -> {
+                Toast.makeText(requireActivity().applicationContext,
+                        "You need to select any place before to save something",
+                        Toast.LENGTH_LONG).show()
+            }
+            //        TODO: When the user confirms on the selected location,
+            //         send back the selected location details to the view model
+            //         and navigate back to the previous fragment to save the reminder and add the geofence
+            else -> {
+                //Navigate to another fragment to get the user location
+                _viewModel.navigationCommand.value =
+                        NavigationCommand.To(
+                                SelectLocationFragmentDirections.
+                                actionSelectLocationFragmentToSaveReminderFragment()
+                        )
+            }
+        }
+    }
+
+    /**
+     * This method is used to set a style to the normal display of GoogleMaps
+     * */
+    private fun setMapStyle(map: GoogleMap) {
+        try {
+            // Customize the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            val success = map.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                            context,
+                            R.raw.map_style
+                    )
+            )
+
+            if (!success) {
+                Log.e("SelectLocationFragment", "Style parsing failed.")
+            }
+        } catch (e: Resources.NotFoundException) {
+            Log.e("SelectLocationFragment", "Can't find style. Error: ", e)
+        }
     }
 
     /** THE METHOD TO USE DEVICE LOCATION IS IN REMINDERSACTIVITY
@@ -131,15 +255,15 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                         if (lastKnownLocation != null) {
                             //TODO: zoom to the user location after taking his permission
                             map.moveCamera(
-                                CameraUpdateFactory.newLatLngZoom(
-                                    LatLng(
-                                        lastKnownLocation!!.latitude,
-                                        lastKnownLocation!!.longitude
-                                    ), DEFAULT_ZOOM.toFloat()))
+                                    CameraUpdateFactory.newLatLngZoom(
+                                            LatLng(
+                                                    lastKnownLocation!!.latitude,
+                                                    lastKnownLocation!!.longitude
+                                            ), DEFAULT_ZOOM.toFloat()))
                             map.addMarker(MarkerOptions().
-                                          position(LatLng(lastKnownLocation!!.latitude,
-                                                   lastKnownLocation!!.longitude)).
-                                                    title("Marker in your actual location")
+                            position(LatLng(lastKnownLocation!!.latitude,
+                                    lastKnownLocation!!.longitude)).
+                            title("Marker in your actual location")
 
                             )
                         }else{
@@ -164,124 +288,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                                                 defaultLocation.longitude
                                         ), DEFAULT_ZOOM.toFloat()))
                         map.addMarker(MarkerOptions().
-                                      position(defaultLocation).
-                                      title("Marker in default location"))
+                        position(defaultLocation).
+                        title("Marker in default location"))
                         map.uiSettings?.isMyLocationButtonEnabled = false
                     }
                 }
             }
         } catch (e: SecurityException) {
             Log.e("Exception: %s", e.message, e)
-        }
-    }
-
-
-    //TODO: put a marker to location that the user selected.
-    //TODO: put a marker on a POI that the user selected.
-    // This method will be used in onMapReady()
-    private fun setPoiClick(map: GoogleMap) {
-        map.setOnPoiClickListener { poi ->
-            val snippet = String.format(
-                    Locale.getDefault(),
-                    "Lat: %1$.5f, Long: %2$.5f",
-                    poi.latLng.latitude,
-                    poi.latLng.longitude
-            )
-            val poiMarker = map.addMarker(
-                    MarkerOptions()
-                            .position(poi.latLng)
-                            .title(poi.name)
-                            .snippet(snippet)
-            )
-            if (_viewModel.selectedPOICount.value == null) {
-                _viewModel.selectedPOICount.value = 1
-                _viewModel.latitude.value = poi.latLng.latitude
-                _viewModel.longitude.value = poi.latLng.longitude
-                _viewModel.reminderSelectedLocationStr.value = poi.name
-            }else{
-                _viewModel.selectedPOICount.value = 2
-            }
-            poiMarker.showInfoWindow()
-        }
-        map.setOnMapClickListener {
-            val snippet = String.format(
-                Locale.getDefault(),
-                "Lat: %1$.5f, Long: %2$.5f",
-                it.latitude,
-                it.longitude
-            )
-            val mapMarker = map.addMarker(
-                MarkerOptions()
-                    .position(it)
-                    .title("${it.latitude} - ${it.longitude}")
-                    .snippet(snippet)
-            )
-            if (_viewModel.selectedPOICount.value == null) {
-                _viewModel.selectedPOICount.value = 1
-                _viewModel.latitude.value = it.latitude
-                _viewModel.longitude.value = it.longitude
-                _viewModel.reminderSelectedLocationStr.value = "${it.latitude} -- ${it.longitude}"
-            }else{
-                _viewModel.selectedPOICount.value = 2
-            }
-            mapMarker.showInfoWindow()
-        }
-        map.setOnMapLongClickListener {
-            map.clear()
-            _viewModel.selectedPOICount.value = null
-        }
-
-    }
-
-    /**
-     * This method will be used when the user clicks on save_button!
-     * */
-    private fun onLocationSelected() {
-        when (_viewModel.selectedPOICount.value) {
-            null -> {
-                Toast.makeText(requireActivity().applicationContext,
-                        "You need to select any place before to save something",
-                        Toast.LENGTH_LONG).show()
-            }
-            //        TODO: When the user confirms on the selected location,
-            //         send back the selected location details to the view model
-            //         and navigate back to the previous fragment to save the reminder and add the geofence
-            1 -> {
-                //Navigate to another fragment to get the user location
-                _viewModel.navigationCommand.value =
-                        NavigationCommand.To(
-                                SelectLocationFragmentDirections.
-                                actionSelectLocationFragmentToSaveReminderFragment()
-                        )
-            }
-            2 -> {
-                Toast.makeText(requireActivity().applicationContext,
-                        "You have selected more than one POI, please, press the screen and" +
-                                "hold some seconds untils all the POI's are deleted",
-                        Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    /**
-     * This method is used to set a style to the normal display of GoogleMaps
-     * */
-    private fun setMapStyle(map: GoogleMap) {
-        try {
-            // Customize the styling of the base map using a JSON object defined
-            // in a raw resource file.
-            val success = map.setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(
-                            context,
-                            R.raw.map_style
-                    )
-            )
-
-            if (!success) {
-                Log.e("SelectLocationFragment", "Style parsing failed.")
-            }
-        } catch (e: Resources.NotFoundException) {
-            Log.e("SelectLocationFragment", "Can't find style. Error: ", e)
         }
     }
 }
