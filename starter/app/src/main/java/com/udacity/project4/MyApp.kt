@@ -15,6 +15,7 @@ import org.koin.dsl.module
 
 class MyApp : Application() {
 
+
     override fun onCreate() {
         super.onCreate()
 
@@ -39,6 +40,7 @@ class MyApp : Application() {
             }
             single { RemindersLocalRepository(get()) as ReminderDataSource }
             single { LocalDB.createRemindersDao(this@MyApp) }
+
         }
 
         startKoin {

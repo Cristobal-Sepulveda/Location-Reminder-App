@@ -19,8 +19,7 @@ import com.udacity.project4.R
 import com.udacity.project4.RemindersActivity
 import com.udacity.project4.databinding.ActivityAuthenticationBinding
 import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.REQUEST_TURN_DEVICE_LOCATION_ON
-import com.udacity.project4.utils.sharedPreference
-
+import org.koin.android.ext.android.inject
 
 /**
  * This class should be the starting point of the app, It asks the users to sign in / register, and redirects the
@@ -33,28 +32,29 @@ class AuthenticationActivity : AppCompatActivity() {
         const val TAG = "LoginFragment"
         const val SIGN_IN_RESULT_CODE = 1001
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        val firebaseAuth = FirebaseAuth.getInstance()
+        if (firebaseAuth.currentUser!= null){
+            val intent = Intent(this, RemindersActivity::class.java)
+            finish()
+            startActivity(intent)
+        }
         binding = DataBindingUtil.setContentView(this, R.layout.activity_authentication)
-
         binding.loginButton.setOnClickListener {
                 launchSignInFlow()
         }
         checkDeviceLocationSettings()
 
-        if(sharedPreference.sharedPref.getBoolean(sharedPreference.key, true)){
-            val intent = Intent(this, RemindersActivity::class.java)
-            finish()
-            startActivity(intent)
-        }
     }
 
     /** Give users the option to sign in / register with their email or Google account.
     * If users choose to register with their email, they will need to create a password as well.*/
     private fun launchSignInFlow() {
         /** What im doing here is telling to the firebaseUI how i want to let the user log-in */
-        val providers = arrayListOf(AuthUI.IdpConfig.EmailBuilder().build(),
+        val providers = arrayListOf(
+                AuthUI.IdpConfig.EmailBuilder().build(),
                 AuthUI.IdpConfig.GoogleBuilder().build())
 
         /** Create and launch sign-in intent.
@@ -68,7 +68,7 @@ class AuthenticationActivity : AppCompatActivity() {
                 .setLogo(R.drawable.map)
                 .build(), SIGN_IN_RESULT_CODE
         )
-        }
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -86,9 +86,6 @@ class AuthenticationActivity : AppCompatActivity() {
                     "Successfully signed in user ${FirebaseAuth.getInstance().currentUser?.displayName}")
                 val firebaseAuth = FirebaseAuth.getInstance()
                 if(firebaseAuth.currentUser != null) {
-                    val editor = sharedPreference.sharedPref.edit()
-                    editor.putBoolean(sharedPreference.key, true)
-                    editor.apply()
                     val intent = Intent(this, RemindersActivity::class.java)
                     finish()
                     startActivity(intent)
