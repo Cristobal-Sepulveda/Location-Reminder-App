@@ -34,7 +34,7 @@ class SaveReminderFragment : BaseFragment() {
      */
     companion object {
         private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
-        const val REQUEST_BACKGROUND_ONLY_PERMISSION_REQUEST_CODE = 33
+        const val REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE = 33
         const val REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE = 34
         const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
         const val LOCATION_PERMISSION_INDEX = 0

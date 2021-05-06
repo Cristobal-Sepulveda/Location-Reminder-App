@@ -2,10 +2,13 @@ package com.udacity.project4.ui.selectLocationFragment
 
 import android.Manifest
 import android.annotation.TargetApi
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.location.Location
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.*
 import android.widget.Toast
@@ -20,11 +23,17 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
+import com.udacity.project4.BuildConfig
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment
+import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.BACKGROUND_LOCATION_PERMISSION_INDEX
+import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.LOCATION_PERMISSION_INDEX
+import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE
+import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
 import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.locationPermissionGranted
 import com.udacity.project4.ui.saveReminderFragment.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
@@ -59,8 +68,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         binding.lifecycleOwner = this
 
         _viewModel.selectedPOICount.value = null
-
-        requestForegroundLocationPermissions()
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
 
@@ -80,8 +87,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         binding.savePOILatLgnButton.setOnClickListener {
             onLocationSelected()
         }
-
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkPermissionsAndGetDeviceLocation()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -111,10 +122,157 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        locationPermissionGranted = foregroundAndBackgroundLocationPermissionApproved()
-        getDeviceLocation()
+        checkPermissionsAndGetDeviceLocation()
         setMapStyle(map)
         setPOIOrAnyPlaceOnClick(map)
+
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>,
+                                            grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        Log.d("CRISTOBAL", "onRequestPermissionResult")
+
+        if (
+            grantResults.isEmpty() ||
+            grantResults[LOCATION_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED ||
+            (requestCode == REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE &&
+                    grantResults[BACKGROUND_LOCATION_PERMISSION_INDEX] ==
+                    PackageManager.PERMISSION_DENIED)) {
+            Log.d("CRISTOBAL", "permission has been denied")
+            Snackbar.make(
+                binding.root,
+                R.string.permission_denied_explanation,
+                Snackbar.LENGTH_LONG
+            )
+                .setAction(R.string.settings) {
+                    startActivity(Intent().apply {
+                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    })
+                }.show()
+        } else {
+            checkPermissionsAndGetDeviceLocation()
+        }
+    }
+    /**
+     * Gets the current location of the device, and positions the map's camera.
+     */
+    fun getDeviceLocation() {
+        /** Get the best and most recent location of the device, which may be null in rare
+         * cases when a location is not available.*/
+        try {
+            if (locationPermissionGranted) {
+                Log.i("cristobal", "$locationPermissionGranted")
+                val locationResult = fusedLocationProviderClient.lastLocation
+                locationResult.addOnCompleteListener(requireActivity()) { task ->
+                    if (task.isSuccessful) {
+                        // Set the map's camera position to the current location of the device.
+                        lastKnownLocation = task.result
+                        println(task.result?.longitude.toString())
+                        if (lastKnownLocation != null) {
+                            //TODO: zoom to the user location after taking his permission
+                            map.moveCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    LatLng(
+                                        lastKnownLocation!!.latitude,
+                                        lastKnownLocation!!.longitude
+                                    ), DEFAULT_ZOOM.toFloat()))
+                            map.addMarker(MarkerOptions().
+                            position(LatLng(lastKnownLocation!!.latitude,
+                                lastKnownLocation!!.longitude)).
+                            title("Marker in your actual location")
+
+                            )
+                        }else{
+                            Log.i("cristobal", "qweqweqwe")
+                            //        TODO: zoom to the user location after taking his permission
+                            map.moveCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    LatLng(defaultLocation.latitude,
+                                        defaultLocation.longitude
+                                    ), DEFAULT_ZOOM.toFloat()))
+                            map.addMarker(MarkerOptions().
+                            position(defaultLocation).
+                            title("Marker in default location"))
+                            map.uiSettings?.isMyLocationButtonEnabled = false
+                        }
+                    } else {
+                        Log.i("cristobal", "qweqweqwe")
+                        //        TODO: zoom to the user location after taking his permission
+                        map.moveCamera(
+                            CameraUpdateFactory.newLatLngZoom(
+                                LatLng(defaultLocation.latitude,
+                                    defaultLocation.longitude
+                                ), DEFAULT_ZOOM.toFloat()))
+                        map.addMarker(MarkerOptions().
+                        position(defaultLocation).
+                        title("Marker in default location"))
+                        map.uiSettings?.isMyLocationButtonEnabled = false
+                    }
+                }
+            }else{
+                map.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(defaultLocation.latitude,
+                            defaultLocation.longitude
+                        ), DEFAULT_ZOOM.toFloat()))
+                map.addMarker(MarkerOptions().
+                position(defaultLocation).
+                title("Marker in default location"))
+                map.uiSettings?.isMyLocationButtonEnabled = false
+            }
+        } catch (e: SecurityException) {
+            Log.e("Exception: %s", e.message, e)
+        }
+    }
+
+    private fun checkPermissionsAndGetDeviceLocation() {
+        if (foregroundAndBackgroundLocationPermissionApproved()) {
+            locationPermissionGranted = true
+            getDeviceLocation()
+        } else {
+            requestForegroundAndBackgroundLocationPermissions()
+        }
+    }
+
+    @TargetApi(29)
+    private fun requestForegroundAndBackgroundLocationPermissions() {
+        if (foregroundAndBackgroundLocationPermissionApproved())
+            return
+        var permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+        val resultCode = when {
+            runningQOrLater -> {
+                permissionsArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE
+            }
+            else -> REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+        }
+        requestPermissions(
+            permissionsArray,
+            resultCode
+        )
+    }
+
+
+    @TargetApi(29)
+    fun foregroundAndBackgroundLocationPermissionApproved(): Boolean {
+        val foregroundLocationApproved = (
+                PackageManager.PERMISSION_GRANTED ==
+                        ActivityCompat.checkSelfPermission(requireActivity(),
+                            Manifest.permission.ACCESS_FINE_LOCATION))
+        val backgroundPermissionApproved =
+            if (runningQOrLater) {
+                PackageManager.PERMISSION_GRANTED ==
+                        ActivityCompat.checkSelfPermission(
+                            requireActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                        )
+            } else {
+                true
+            }
+        return foregroundLocationApproved && backgroundPermissionApproved
     }
 
     /**put a marker to location that the user selected.
@@ -240,133 +398,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         } catch (e: Resources.NotFoundException) {
             Log.e("SelectLocationFragment", "Can't find style. Error: ", e)
         }
-    }
-
-    /** THE METHOD TO USE DEVICE LOCATION IS IN REMINDERSACTIVITY
-     * THE NAME ITS private fun getLocationPermission() {...}
-     */
-
-    /**
-     * Gets the current location of the device, and positions the map's camera.
-     */
-    fun getDeviceLocation() {
-        /** Get the best and most recent location of the device, which may be null in rare
-         * cases when a location is not available.*/
-        try {
-            if (locationPermissionGranted) {
-                Log.i("cristobal", "$locationPermissionGranted")
-                val locationResult = fusedLocationProviderClient.lastLocation
-                locationResult.addOnCompleteListener(requireActivity()) { task ->
-                    if (task.isSuccessful) {
-                        // Set the map's camera position to the current location of the device.
-                        lastKnownLocation = task.result
-                        println(task.result?.longitude.toString())
-                        if (lastKnownLocation != null) {
-                            //TODO: zoom to the user location after taking his permission
-                            map.moveCamera(
-                                    CameraUpdateFactory.newLatLngZoom(
-                                            LatLng(
-                                                    lastKnownLocation!!.latitude,
-                                                    lastKnownLocation!!.longitude
-                                            ), DEFAULT_ZOOM.toFloat()))
-                            map.addMarker(MarkerOptions().
-                            position(LatLng(lastKnownLocation!!.latitude,
-                                    lastKnownLocation!!.longitude)).
-                            title("Marker in your actual location")
-
-                            )
-                        }else{
-                            Log.i("cristobal", "qweqweqwe")
-                            //        TODO: zoom to the user location after taking his permission
-                            map.moveCamera(
-                                    CameraUpdateFactory.newLatLngZoom(
-                                            LatLng(defaultLocation.latitude,
-                                                    defaultLocation.longitude
-                                            ), DEFAULT_ZOOM.toFloat()))
-                            map.addMarker(MarkerOptions().
-                            position(defaultLocation).
-                            title("Marker in default location"))
-                            map.uiSettings?.isMyLocationButtonEnabled = false
-                        }
-                    } else {
-                        Log.i("cristobal", "qweqweqwe")
-                        //        TODO: zoom to the user location after taking his permission
-                        map.moveCamera(
-                                CameraUpdateFactory.newLatLngZoom(
-                                        LatLng(defaultLocation.latitude,
-                                                defaultLocation.longitude
-                                        ), DEFAULT_ZOOM.toFloat()))
-                        map.addMarker(MarkerOptions().
-                        position(defaultLocation).
-                        title("Marker in default location"))
-                        map.uiSettings?.isMyLocationButtonEnabled = false
-                    }
-                }
-            }
-        } catch (e: SecurityException) {
-            Log.e("Exception: %s", e.message, e)
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == SaveReminderFragment.REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE &&
-            grantResults.first() == PackageManager.PERMISSION_DENIED) {
-            requestForegroundLocationPermissions()
-        }
-
-        if(requestCode == SaveReminderFragment.REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE &&
-            grantResults.first() == PackageManager.PERMISSION_GRANTED){
-            println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-            requestBackgroundLocationPermissions()
-        }
-    }
-
-    /**
-     * Prompts the user for permission to use the device location.
-     */
-    @TargetApi(29 )
-    private fun requestForegroundLocationPermissions() {
-        if (foregroundAndBackgroundLocationPermissionApproved()) {
-            return
-        }
-        val permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-        val resultCode = SaveReminderFragment.REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
-
-        ActivityCompat.requestPermissions(
-            requireActivity(),
-            permissionsArray,
-            resultCode
-        )
-    }
-
-    @TargetApi(29)
-    private fun requestBackgroundLocationPermissions(){
-        val permissionsArray = arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-        val resultCode = SaveReminderFragment.REQUEST_BACKGROUND_ONLY_PERMISSION_REQUEST_CODE
-        ActivityCompat.requestPermissions(
-            requireActivity(),
-            permissionsArray,
-            resultCode
-        )
-    }
-
-    @TargetApi(29)
-    fun foregroundAndBackgroundLocationPermissionApproved(): Boolean {
-        val foregroundLocationApproved = (
-                PackageManager.PERMISSION_GRANTED ==
-                        ActivityCompat.checkSelfPermission(requireActivity(),
-                            Manifest.permission.ACCESS_FINE_LOCATION))
-        val backgroundPermissionApproved =
-            if (runningQOrLater) {
-                PackageManager.PERMISSION_GRANTED ==
-                        ActivityCompat.checkSelfPermission(
-                            requireActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                        )
-            } else {
-                true
-            }
-        return foregroundLocationApproved && backgroundPermissionApproved
     }
 }
 
