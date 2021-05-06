@@ -2,11 +2,13 @@ package com.udacity.project4.ui.selectLocationFragment
 
 import android.Manifest
 import android.annotation.TargetApi
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.location.Location
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -14,6 +16,7 @@ import android.view.*
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.FragmentTransaction
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -29,7 +32,6 @@ import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
-import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment
 import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.BACKGROUND_LOCATION_PERMISSION_INDEX
 import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.LOCATION_PERMISSION_INDEX
 import com.udacity.project4.ui.saveReminderFragment.SaveReminderFragment.Companion.REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE
@@ -39,6 +41,7 @@ import com.udacity.project4.ui.saveReminderFragment.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 import java.util.*
+
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
@@ -87,12 +90,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         binding.savePOILatLgnButton.setOnClickListener {
             onLocationSelected()
         }
-        return binding.root
-    }
 
-    override fun onResume() {
-        super.onResume()
-        checkPermissionsAndGetDeviceLocation()
+        return binding.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -122,25 +121,32 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        getDeviceLocation()
         checkPermissionsAndGetDeviceLocation()
         setMapStyle(map)
         setPOIOrAnyPlaceOnClick(map)
 
     }
 
+    private fun checkPermissionsAndGetDeviceLocation() {
+        if (foregroundAndBackgroundLocationPermissionApproved()) {
+            locationPermissionGranted = true
+            getDeviceLocation()
+        } else {
+            requestForegroundAndBackgroundLocationPermissions()
+        }
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>,
                                             grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        Log.d("CRISTOBAL", "onRequestPermissionResult")
-
         if (
             grantResults.isEmpty() ||
             grantResults[LOCATION_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED ||
             (requestCode == REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE &&
                     grantResults[BACKGROUND_LOCATION_PERMISSION_INDEX] ==
                     PackageManager.PERMISSION_DENIED)) {
-            Log.d("CRISTOBAL", "permission has been denied")
             Snackbar.make(
                 binding.root,
                 R.string.permission_denied_explanation,
@@ -153,10 +159,17 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     })
                 }.show()
-        } else {
-            checkPermissionsAndGetDeviceLocation()
+        }else{
+            val ft: FragmentTransaction = requireFragmentManager().beginTransaction()
+            if (Build.VERSION.SDK_INT >= 26) {
+                ft.setReorderingAllowed(false)
+            }
+            ft.detach(this).attach(this).commit()
         }
     }
+
+
+
     /**
      * Gets the current location of the device, and positions the map's camera.
      */
@@ -226,15 +239,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             }
         } catch (e: SecurityException) {
             Log.e("Exception: %s", e.message, e)
-        }
-    }
-
-    private fun checkPermissionsAndGetDeviceLocation() {
-        if (foregroundAndBackgroundLocationPermissionApproved()) {
-            locationPermissionGranted = true
-            getDeviceLocation()
-        } else {
-            requestForegroundAndBackgroundLocationPermissions()
         }
     }
 
